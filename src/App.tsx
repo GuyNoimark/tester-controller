@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import logo from "./logo.svg";
+import "react-flexr/styles.css";
+
 // import "./App.css";
 import {
   Button,
@@ -35,7 +37,7 @@ function App() {
   return (
     <CustomProvider theme={theme}>
       <div className="App">
-        <Header>
+        {/* <Header>
           <ButtonToolbar>
             <Button appearance="default" onClick={switchTheme} value="light">
               Light theme(default)
@@ -51,11 +53,32 @@ function App() {
               High contrast theme
             </Button>
           </ButtonToolbar>
-        </Header>
+        </Header> */}
         <Divider></Divider>
-        <Content>
-          <Grid fluid={true}>
-            <Row>
+        <div>
+          <Grid fluid>
+            <Row gutter={20}>
+              <Col md={8}>
+                <Panel style={{ height: "90vh" }} shaded></Panel>
+              </Col>
+              <Col md={16}>
+                <Row>
+                  <Panel style={{ height: "60vh" }} expanded={true} shaded>
+                    B
+                  </Panel>
+                </Row>
+                <Row>
+                  <div style={{ height: "20px" }}></div>
+                </Row>
+                <Row>
+                  <Panel style={{ height: "30vh" }} shaded></Panel>
+                </Row>
+              </Col>
+            </Row>
+          </Grid>
+          {/* </Row>
+
+          {/* <Row>
               <Col md={6} sm={12}>
                 <Panel header="Iterations" shaded>
                   <InputNumber min={0} step={1} />
@@ -71,7 +94,6 @@ function App() {
                   {(props, ref) => (
                     <div {...props} ref={ref}>
                       <Panel header="Panel title" shaded>
-                        {/* <img src={logo}></img> */}
                       </Panel>
                     </div>
                   )}
@@ -103,10 +125,9 @@ function App() {
                   </FlexboxGrid>
                 </Panel>{" "}
               </Col>
-              {/* <Col></Col> */}
-            </Row>
-          </Grid>
-        </Content>
+            </Row> */}
+          {/* </Grid> */}
+        </div>
       </div>
     </CustomProvider>
   );
