@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import logo from "./logo.svg";
 import "react-flexr/styles.css";
+import SortUpIcon from "@rsuite/icons/SortUp";
+import SortDownIcon from "@rsuite/icons/SortDown";
+import Chart from "react-apexcharts";
 
 // import "./App.css";
 import {
@@ -21,8 +24,13 @@ import {
   Stack,
   Grid,
   Animation,
+  Toggle,
+  RadioGroup,
+  Radio,
+  Timeline,
 } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
+import SessionInput from "./components/SessionSettingsPanel";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -34,9 +42,22 @@ function App() {
   const [show, setShow] = React.useState(true);
   const onChange = () => setShow(!show);
 
+  const defaultPadding = 20;
+
+  let data: ApexAxisChartSeries = [
+    { data: Array.from({ length: 40 }, () => Math.floor(Math.random() * 40)) },
+  ];
+
   return (
     <CustomProvider theme={theme}>
-      <div className="App">
+      <div
+        className="App"
+        style={{
+          textAlign: "center",
+          padding: defaultPadding,
+        }}
+      >
+        {/* <Button appearance="primary">Hello World</Button> */}
         {/* <Header>
           <ButtonToolbar>
             <Button appearance="default" onClick={switchTheme} value="light">
@@ -54,24 +75,71 @@ function App() {
             </Button>
           </ButtonToolbar>
         </Header> */}
-        <Divider></Divider>
+        {/* <Divider></Divider> */}
         <div>
           <Grid fluid>
             <Row gutter={20}>
               <Col md={8}>
-                <Panel style={{ height: "90vh" }} shaded></Panel>
+                <Stack direction="column" spacing={20} alignItems="stretch">
+                  <SessionInput></SessionInput>
+                  <Panel header="Session Progress" shaded>
+                    <Stack direction="column" spacing={20} alignItems="stretch">
+                      <Progress.Line percent={30} status="active" />
+                      <Timeline>
+                        <Timeline.Item>16:27:41 Session Started</Timeline.Item>
+                        <Timeline.Item>16:28:43 50% Done</Timeline.Item>
+
+                        <Timeline.Item>
+                          16:28:45 Test results available
+                        </Timeline.Item>
+                        <Timeline.Item>
+                          02:34:41 Send to Shanghai Hongkou Company
+                        </Timeline.Item>
+                        <Timeline.Item>
+                          15:05:29 Sending you a piece
+                        </Timeline.Item>
+                      </Timeline>
+                    </Stack>
+                  </Panel>
+                </Stack>
               </Col>
               <Col md={16}>
                 <Row>
-                  <Panel style={{ height: "60vh" }} expanded={true} shaded>
-                    B
+                  <Panel expanded={true} shaded>
+                    <Chart
+                      options={{
+                        chart: {
+                          id: "realtime",
+                          animations: {
+                            enabled: true,
+                            easing: "linear",
+                            dynamicAnimation: {
+                              speed: 1000,
+                            },
+                          },
+                          toolbar: {
+                            show: true,
+                          },
+                          zoom: {
+                            enabled: false,
+                          },
+                        },
+                        stroke: {
+                          curve: "straight",
+                        },
+                        // xaxis: {
+                        //   type: 'datetime',
+                        //   range: XAXISRANGE,
+                        // },
+                        yaxis: {
+                          max: 50,
+                        },
+                      }}
+                      series={data}
+                      type="line"
+                      // width="500"
+                    />
                   </Panel>
-                </Row>
-                <Row>
-                  <div style={{ height: "20px" }}></div>
-                </Row>
-                <Row>
-                  <Panel style={{ height: "30vh" }} shaded></Panel>
                 </Row>
               </Col>
             </Row>
