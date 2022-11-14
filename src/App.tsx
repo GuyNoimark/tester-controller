@@ -71,7 +71,7 @@ function App() {
                   {(props, ref) => (
                     <div {...props} ref={ref}>
                       <Panel header="Panel title" shaded>
-                        <img src={logo}></img>
+                        {/* <img src={logo}></img> */}
                       </Panel>
                     </div>
                   )}
