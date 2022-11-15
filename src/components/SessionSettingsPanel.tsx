@@ -42,7 +42,7 @@ type SessionSettingsModel = {
   push: boolean;
 };
 
-const SessionSettingsPanel = () => {
+const SessionSettingsPanel = (props: { onClick: Function }) => {
   const [formData, setData] = useState<SessionSettingsModel>({
     iterations: 0,
     force: 0,
@@ -145,6 +145,7 @@ const SessionSettingsPanel = () => {
                 handleOpen();
               } else {
                 console.log("Start Test");
+                props.onClick();
               }
             }}
             block

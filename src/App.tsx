@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 // import "react-flexr/styles.css";
 import Chart from "react-apexcharts";
+// import { SerialPort } from "serialport";
 
 // import "./App.css";
 import {
@@ -29,6 +30,7 @@ import {
 } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import SessionInput from "./components/SessionSettingsPanel";
+import socketIOClient from "socket.io-client";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -45,6 +47,20 @@ function App() {
   let data: ApexAxisChartSeries = [
     { data: Array.from({ length: 40 }, () => Math.floor(Math.random() * 40)) },
   ];
+
+  const ENDPOINT = "http://127.0.0.1:4001";
+  const [response, setResponse] = useState("");
+
+  const connectToArduino = () => {
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("FromAPI", (data) => {
+      setResponse(data);
+      socket.on("Disconnect", (data) => {
+        console.log("DISCONNECTED");
+      });
+    });
+    // if (socket.) console.log("DISCONNECTED");
+  };
 
   return (
     <CustomProvider theme={theme}>
@@ -79,10 +95,10 @@ function App() {
             <Row gutter={20}>
               <Col md={8}>
                 <Stack direction="column" spacing={20} alignItems="stretch">
-                  <SessionInput></SessionInput>
+                  <SessionInput onClick={connectToArduino}></SessionInput>
                   <Panel header="Session Progress" shaded>
                     <Stack direction="column" spacing={20} alignItems="stretch">
-                      <Progress.Line percent={30} status="active" />
+                      <Progress.Line percent={+response} status="active" />
                       <Timeline>
                         <Timeline.Item>16:27:41 Session Started</Timeline.Item>
                         <Timeline.Item>16:28:43 50% Done</Timeline.Item>
