@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import logo from "./logo.svg";
-import "react-flexr/styles.css";
-import SortUpIcon from "@rsuite/icons/SortUp";
-import SortDownIcon from "@rsuite/icons/SortDown";
+// import "react-flexr/styles.css";
 import Chart from "react-apexcharts";
 
 // import "./App.css";
