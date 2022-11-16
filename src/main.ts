@@ -25,33 +25,87 @@ function createWindow() {
     }
 }
 
+const ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F"
+const LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530"
+
 interface SerialPort {
     path: String,
-    pnpID: String,
+    pnpId: String,
     manufacturer: String
 }
-// 
-const getPorts = function (): SerialPort[] {
-    // Promise approach
-    serialPort.list().then((ports: SerialPort[]) => {
-        ports.forEach(function (port: any) {
-            console.log(port.path, port.pnpId, port.manufacturer);
-// 
-        });
-        return ports;
+
+// const getPorts = (): SerialPort[] => serialPort.list().then(() => {
+//     // Promise approach
+//     return serialPort.list().then((ports: SerialPort[]) => {
+//         ports.forEach(function (port: SerialPort) {
+//             console.log(port.path, port.pnpId, port.manufacturer);
+//         });
+//         return ports
+//     });
+// });
+
+// const getPorts = async ():Promise<SerialPort[]> =>   { 
+
+// }
+
+// Detect Arduino and LARIT corresponding ports
+ipcMain.on('getSerialPorts', async () => {
+    // serialPort.list().then((ports: SerialPort[]) => console.log(ports));
+
+    const arduinoPath = await serialPort.list().then((ports: SerialPort[]) => ports.find((port) => port.pnpId === ARDUINO_PNP_ID)?.path);
+    const LARITPath = await serialPort.list().then((ports: SerialPort[]) => ports.find((port) => port.pnpId === LARIT_PNP_ID)?.path);
+    
+    const arduino = new serialPort({
+        path: arduinoPath,
+        baudRate: 115200
     });
-    return [];
-};
-// 
-// 
-ipcMain.on('getSerialPorts', (event, title) => {
-    const ports: SerialPort[] = [...getPorts()];
-    console.log(ports);
+    const LARIT = new serialPort({
+        path: arduinoPath,
+        baudRate: 9600
+    });
+
+    console.log('Connected to arduino at port', arduinoPath)
+
+    ipcMain.on('arduinoWrite', (event, message: String) => { 
+                
+        // arduino.write('Send Data from GUI - ' + message);
+        console.log('Send Data from GUI - ' + message.split(','))
+
+
+            arduino.write(message.split(',')[0]);
+            arduino.write(message.split(',')[1]);
+            arduino.write(message.split(',')[2]);
+            arduino.write('<179> \\n');
+        
+    });
+
+    
+    ipcMain.on('arduinoRead', (event, message: String) => { 
+        
+            arduino.on('readable', function () {
+                console.log('Data:', arduino.read())
+              })
+        
+    });
+
+
+    ipcMain.on('LARITRead', (event, message: String) => { 
+        
+            LARIT.on('readable', function () {
+                console.log('Data:', LARIT.read())
+              })
+        
+    });
+
+    
+    // const LARIT = new SerialPort({
+    //     path: serialPort.list().then((port: SerialPortType) => port.pnpId === LARIT_PNP_ID ? port : undefined),
+    //     baudRate: 115200
+    // });
+    
 })
-// 
-// 
-// 
-// 
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

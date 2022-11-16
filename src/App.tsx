@@ -46,8 +46,10 @@ function App() {
 
   // ipcRenderer.send("searchSerialPort", "test");
 
-  const ENDPOINT = "http://127.0.0.1:4001";
-  const [response, setResponse] = useState("");
+  // const ENDPOINT = "http://127.0.0.1:4001";
+  // const [response, setResponse] = useState("");
+
+  useEffect(() => window.electronAPI.getSerialPorts());
 
   return (
     <CustomProvider theme={theme}>
@@ -83,13 +85,22 @@ function App() {
               <Col md={8}>
                 <Stack direction="column" spacing={20} alignItems="stretch">
                   <SessionInput
-                    onClick={() => {
-                      window.electronAPI.getSerialPorts("some data");
+                    onClick={(formData) => {
+                      window.electronAPI.writeArduino(
+                        `${formData.iterations},${formData.force},${formData.push}`
+                      );
                     }}
                   ></SessionInput>
+                  <Button
+                    onClick={() => {
+                      window.electronAPI.readArduino();
+                    }}
+                  >
+                    Read
+                  </Button>
                   <Panel header="Session Progress" shaded>
                     <Stack direction="column" spacing={20} alignItems="stretch">
-                      <Progress.Line percent={+response} status="active" />
+                      <Progress.Line percent={45} status="active" />
                       <Timeline>
                         <Timeline.Item>16:27:41 Session Started</Timeline.Item>
                         <Timeline.Item>16:28:43 50% Done</Timeline.Item>

@@ -15,6 +15,7 @@ import SortUpIcon from "@rsuite/icons/SortUp";
 import SortDownIcon from "@rsuite/icons/SortDown";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { isInteger } from "lodash";
+import { SessionSettingsModel } from "../Models/Models";
 
 // const Field = React.forwardRef((props, ref) => {
 //   // const { name, message, label, accepter, error, ...rest } = props;
@@ -36,13 +37,9 @@ import { isInteger } from "lodash";
 //   );
 // });
 
-type SessionSettingsModel = {
-  iterations: number;
-  force: number;
-  push: boolean;
-};
-
-const SessionSettingsPanel = (props: { onClick: Function }) => {
+const SessionSettingsPanel = (props: {
+  onClick(data: SessionSettingsModel): void;
+}) => {
   const [formData, setData] = useState<SessionSettingsModel>({
     iterations: 0,
     force: 0,
@@ -87,7 +84,7 @@ const SessionSettingsPanel = (props: { onClick: Function }) => {
           <InputNumber
             min={0}
             step={1}
-            defaultValue={0}
+            defaultValue={3}
             prefix="Iterations"
             onChange={(value) =>
               setData({
@@ -100,7 +97,7 @@ const SessionSettingsPanel = (props: { onClick: Function }) => {
           <InputNumber
             min={1}
             step={1}
-            defaultValue={0}
+            defaultValue={5}
             prefix="Neuton Force"
             onChange={(value) =>
               setData({
@@ -145,7 +142,7 @@ const SessionSettingsPanel = (props: { onClick: Function }) => {
                 handleOpen();
               } else {
                 console.log("Start Test");
-                props.onClick();
+                props.onClick(formData);
               }
             }}
             block
