@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -12,6 +13,8 @@
     "@types/react-dom": "^18.0.8",
     "apexcharts": "^3.36.3",
     "browser-serialport": "^2.1.0",
+    "cross-env": "^7.0.3",
+    "electron-is-dev": "^2.0.0",
     "express": "^4.18.2",
     "os-browserify": "^0.3.0",
     "react": "^18.2.0",
@@ -27,14 +30,16 @@
     "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
-  "main": "src/electron-starter.js",
+  "main": "src/main.js",
+  "homepage": "./",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "electron-dev": "set ELECTRON_START_URL=http://localhost:3000 && electron ."
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "electron-build": "electron-builder",
+    "build": "npm run react-build && npm run electron-build",
+    "start": "concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\""
   },
   "eslintConfig": {
     "extends": [
@@ -56,6 +61,9 @@
   },
   "devDependencies": {
     "@types/react-flexr": "^2.0.12",
-    "electron": "^21.2.3"
+    "concurrently": "^7.5.0",
+    "electron": "^21.2.3",
+    "electron-builder": "^23.6.0",
+    "wait-on": "^6.0.1"
   }
 }
