@@ -3,3 +3,8 @@ export type SessionSettingsModel = {
   force: number;
   push: boolean;
 };
+
+export enum ModalState {
+  Open,
+  Closed,
+}

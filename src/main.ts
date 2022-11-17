@@ -1,8 +1,11 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
+import { ConnectionStatus } from "./Models/ConnectionState";
 const isDev = require("electron-is-dev");
 const SerialPort = require("serialport");
 const serialPort = SerialPort.SerialPort;
+
+
 
 function createWindow() {
     // Create the browser window.
@@ -25,13 +28,14 @@ function createWindow() {
     }
 
     // Detect Arduino and LARIT corresponding ports
-    ipcMain.on('getSerialPorts', async () => {
+    ipcMain.handle('getSerialPorts', async () => {
         // serialPort.list().then((ports: SerialPort[]) => console.log(ports));
 
         const arduinoPath = await serialPort.list().then((ports: SerialPort[]) => ports.find((port) => port.pnpId === ARDUINO_PNP_ID)?.path);
         const LARITPath = await serialPort.list().then((ports: SerialPort[]) => ports.find((port) => port.pnpId === LARIT_PNP_ID)?.path);
 
         // if (arduinoPath !== undefined && LARITPath !== undefined) {
+        if (LARITPath !== undefined) {
 
         // const arduino = new serialPort({
         //     path: arduinoPath ,
@@ -104,11 +108,13 @@ function createWindow() {
         //     path: serialPort.list().then((port: SerialPortType) => port.pnpId === LARIT_PNP_ID ? port : undefined),
         //     baudRate: 115200
         // });
+        return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
         
-        // } else {
-        //     if (arduinoPath === undefined) console.log('Arduino path is undefined');
-        //     if (LARITPath === undefined) console.log('LARIT path is undefined');
-        // }
+        } else {
+            if (arduinoPath === undefined && LARITPath === undefined) return ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED;
+            if (arduinoPath === undefined) return ConnectionStatus.ARDUINO_IS_NOT_CONNECTED;
+            if (LARITPath === undefined) return ConnectionStatus.LARIT_IS_NOT_CONNECTED;
+        }
     });
 }
 

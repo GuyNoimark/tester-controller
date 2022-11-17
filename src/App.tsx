@@ -22,11 +22,16 @@ import {
   RadioGroup,
   Radio,
   Timeline,
+  Modal,
 } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
 import SessionInput from "./Components/SessionSettingsPanel";
+import ModalAlert from "./Components/ModalAlert";
 import socketIOClient from "socket.io-client";
 import ChartPanel from "./Components/ChartPanel";
+import { ModalState } from "./Models/Models";
+import RemindRoundIcon from "@rsuite/icons/RemindRound";
+import { ConnectionStatus } from "./Models/ConnectionState";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -42,12 +47,24 @@ function App() {
 
   const defaultPadding = 20;
 
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [errorMessage, setErrorMessage] = useState("");
   // ipcRenderer.send("searchSerialPort", "test");
 
   // const ENDPOINT = "http://127.0.0.1:4001";
   // const [response, setResponse] = useState("");
 
-  useEffect(() => window.electronAPI.getSerialPorts());
+  useEffect(() => {
+    const getReponse = async () => await window.electronAPI.getSerialPorts();
+    getReponse().then((response: ConnectionStatus) => {
+      if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+        setErrorMessage(response.toString());
+        handleOpen();
+      }
+    });
+  });
 
   return (
     <CustomProvider theme={theme}>
@@ -116,6 +133,28 @@ function App() {
               </Col>
             </Row>
           </Grid>
+          <Modal open={open} onClose={handleClose} size={"xs"}>
+            <Modal.Header>
+              <Modal.Title>
+                {" "}
+                <RemindRoundIcon
+                  style={{ color: "#f08901", fontSize: 30 }}
+                />{" "}
+                Error
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{errorMessage}</Modal.Body>
+            <Modal.Footer>
+              <Button
+                onClick={handleClose}
+                appearance="primary"
+                color={"orange"}
+              >
+                Ok
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
           {/* </Row>
 
           {/* <Row>

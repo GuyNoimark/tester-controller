@@ -11,6 +11,9 @@ import {
   Modal,
   Placeholder,
   Divider,
+  Checkbox,
+  Slider,
+  Toggle,
 } from "rsuite";
 import SortUpIcon from "@rsuite/icons/SortUp";
 import SortDownIcon from "@rsuite/icons/SortDown";
@@ -51,6 +54,8 @@ const SessionSettingsPanel = (props: {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const [enableAdvanced, setEnableAdvanced] = useState(false);
 
   const maxForceAllowed: number = 500;
 
@@ -133,6 +138,27 @@ const SessionSettingsPanel = (props: {
               <SortUpIcon /> Pull
             </Radio>
           </RadioGroup>
+          <Divider>
+            {
+              <Toggle
+                size={"md"}
+                checkedChildren={"Advanced"}
+                unCheckedChildren={"Advanced"}
+                defaultChecked={false}
+                onChange={(checked) => setEnableAdvanced(checked)}
+              />
+            }{" "}
+          </Divider>
+          <InputNumber disabled={!enableAdvanced} defaultValue={10} />
+          <Slider
+            disabled={!enableAdvanced}
+            defaultValue={50}
+            min={0}
+            // step={10}
+            max={100}
+            progress
+          />
+
           <Button
             appearance="primary"
             onClick={() => {
@@ -150,7 +176,6 @@ const SessionSettingsPanel = (props: {
           >
             Start Test Session
           </Button>
-          <Divider>Advanced</Divider>
         </Stack>
       </Panel>
 

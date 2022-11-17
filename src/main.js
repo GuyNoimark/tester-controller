@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var electron_1 = require("electron");
 var path = require("path");
+var ConnectionState_1 = require("./Models/ConnectionState");
 var isDev = require("electron-is-dev");
 var SerialPort = require("serialport");
 var serialPort = SerialPort.SerialPort;
@@ -60,8 +61,8 @@ function createWindow() {
         mainWindow.webContents.openDevTools();
     }
     // Detect Arduino and LARIT corresponding ports
-    electron_1.ipcMain.on('getSerialPorts', function () { return __awaiter(_this, void 0, void 0, function () {
-        var arduinoPath, LARITPath, LARIT;
+    electron_1.ipcMain.handle('getSerialPorts', function () { return __awaiter(_this, void 0, void 0, function () {
+        var arduinoPath, LARITPath, LARIT_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
@@ -70,38 +71,59 @@ function createWindow() {
                     return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
                 case 2:
                     LARITPath = _a.sent();
-                    LARIT = new serialPort({
-                        path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
-                        baudRate: 9600
-                    });
-                    console.log('Connected to arduino at port', arduinoPath);
-                    console.log('Connected to LARIT at port', LARITPath);
-                    electron_1.ipcMain.on('arduinoWrite', function (event, message) {
-                        // arduino.write('Send Data from GUI - ' + message);
-                        console.log('Send Data from GUI - ' + message.split(','));
-                        // arduino.write(message.split(',')[0]);
-                        // arduino.write(message.split(',')[1]);
-                        // arduino.write(message.split(',')[2]);
-                        // arduino.write('<179> \\n');
-                    });
-                    electron_1.ipcMain.on('arduinoRead', function (event, message) {
-                        // arduino.on('readable', function () {
-                        //     console.log('Data:', arduino.read());
-                        //   })
-                    });
-                    setInterval(function () {
-                        LARIT.write('?', function (err) {
-                            if (err) {
-                                return console.log('Error on write: ', err.message);
-                            }
-                            // console.log('Sent request to LARIT');
+                    if (arduinoPath !== undefined && LARITPath !== undefined) {
+                        LARIT_1 = new serialPort({
+                            path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
+                            baudRate: 9600
                         });
-                    }, 50);
-                    LARIT.on('data', function (data) {
-                        var formattedData = data.toString('utf8').slice(0, -3);
-                        console.log('Data:', parseFloat(formattedData) * -1);
-                        mainWindow.webContents.send('getSensorValue', parseFloat(formattedData) * -1);
-                    });
+                        console.log('Connected to arduino at port', arduinoPath);
+                        console.log('Connected to LARIT at port', LARITPath);
+                        electron_1.ipcMain.on('arduinoWrite', function (event, message) {
+                            // arduino.write('Send Data from GUI - ' + message);
+                            console.log('Send Data from GUI - ' + message.split(','));
+                            // arduino.write(message.split(',')[0]);
+                            // arduino.write(message.split(',')[1]);
+                            // arduino.write(message.split(',')[2]);
+                            // arduino.write('<179> \\n');
+                        });
+                        electron_1.ipcMain.on('arduinoRead', function (event, message) {
+                            // arduino.on('readable', function () {
+                            //     console.log('Data:', arduino.read());
+                            //   })
+                        });
+                        setInterval(function () {
+                            LARIT_1.write('?', function (err) {
+                                if (err) {
+                                    return console.log('Error on write: ', err.message);
+                                }
+                                // console.log('Sent request to LARIT');
+                            });
+                        }, 50);
+                        LARIT_1.on('data', function (data) {
+                            var formattedData = data.toString('utf8').slice(0, -3);
+                            console.log('Data:', parseFloat(formattedData) * -1);
+                            mainWindow.webContents.send('getSensorValue', parseFloat(formattedData) * -1);
+                        });
+                        // ipcMain.on('LARITRead', (event, message: String) => { 
+                        //         LARIT.write('?');
+                        //         LARIT.on('readable', function () {
+                        //             const data = LARIT.read();
+                        //           })
+                        // });
+                        // const LARIT = new SerialPort({
+                        //     path: serialPort.list().then((port: SerialPortType) => port.pnpId === LARIT_PNP_ID ? port : undefined),
+                        //     baudRate: 115200
+                        // });
+                        return [2 /*return*/, ConnectionState_1.ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED];
+                    }
+                    else {
+                        if (arduinoPath === undefined && LARITPath === undefined)
+                            return [2 /*return*/, ConnectionState_1.ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED];
+                        if (arduinoPath === undefined)
+                            return [2 /*return*/, ConnectionState_1.ConnectionStatus.ARDUINO_IS_NOT_CONNECTED];
+                        if (LARITPath === undefined)
+                            return [2 /*return*/, ConnectionState_1.ConnectionStatus.LARIT_IS_NOT_CONNECTED];
+                    }
                     return [2 /*return*/];
             }
         });
