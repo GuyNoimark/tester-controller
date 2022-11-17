@@ -10,6 +10,7 @@ import {
   Schema,
   Modal,
   Placeholder,
+  Divider,
 } from "rsuite";
 import SortUpIcon from "@rsuite/icons/SortUp";
 import SortDownIcon from "@rsuite/icons/SortDown";
@@ -149,6 +150,7 @@ const SessionSettingsPanel = (props: {
           >
             Start Test Session
           </Button>
+          <Divider>Advanced</Divider>
         </Stack>
       </Panel>
 

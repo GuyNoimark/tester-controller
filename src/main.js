@@ -42,6 +42,7 @@ var isDev = require("electron-is-dev");
 var SerialPort = require("serialport");
 var serialPort = SerialPort.SerialPort;
 function createWindow() {
+    var _this = this;
     // Create the browser window.
     var mainWindow = new electron_1.BrowserWindow({
         height: 600,
@@ -51,16 +52,63 @@ function createWindow() {
         width: 800
     });
     mainWindow.loadURL(isDev
-        ? "http://localhost:3000"
+        ? "http://127.0.0.1:3000"
         : "file://".concat(path.join(__dirname, "../build/index.html")));
     mainWindow.setFullScreen(true);
     // mainWindow.setMenuBarVisibility(false);
     if (isDev) {
         mainWindow.webContents.openDevTools();
     }
+    // Detect Arduino and LARIT corresponding ports
+    electron_1.ipcMain.on('getSerialPorts', function () { return __awaiter(_this, void 0, void 0, function () {
+        var arduinoPath, LARITPath, LARIT;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
+                case 1:
+                    arduinoPath = _a.sent();
+                    return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
+                case 2:
+                    LARITPath = _a.sent();
+                    LARIT = new serialPort({
+                        path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
+                        baudRate: 9600
+                    });
+                    console.log('Connected to arduino at port', arduinoPath);
+                    console.log('Connected to LARIT at port', LARITPath);
+                    electron_1.ipcMain.on('arduinoWrite', function (event, message) {
+                        // arduino.write('Send Data from GUI - ' + message);
+                        console.log('Send Data from GUI - ' + message.split(','));
+                        // arduino.write(message.split(',')[0]);
+                        // arduino.write(message.split(',')[1]);
+                        // arduino.write(message.split(',')[2]);
+                        // arduino.write('<179> \\n');
+                    });
+                    electron_1.ipcMain.on('arduinoRead', function (event, message) {
+                        // arduino.on('readable', function () {
+                        //     console.log('Data:', arduino.read());
+                        //   })
+                    });
+                    setInterval(function () {
+                        LARIT.write('?', function (err) {
+                            if (err) {
+                                return console.log('Error on write: ', err.message);
+                            }
+                            // console.log('Sent request to LARIT');
+                        });
+                    }, 50);
+                    LARIT.on('data', function (data) {
+                        var formattedData = data.toString('utf8').slice(0, -3);
+                        console.log('Data:', parseFloat(formattedData) * -1);
+                        mainWindow.webContents.send('getSensorValue', parseFloat(formattedData) * -1);
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 }
 var ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
-var LARIT_PNP_ID = "USB\\VID_2341&PID_5740\\5A885C835151363448202020FF182F0F";
+var LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
 // const getPorts = (): SerialPort[] => serialPort.list().then(() => {
 //     // Promise approach
 //     return serialPort.list().then((ports: SerialPort[]) => {
@@ -72,38 +120,6 @@ var LARIT_PNP_ID = "USB\\VID_2341&PID_5740\\5A885C835151363448202020FF182F0F";
 // });
 // const getPorts = async ():Promise<SerialPort[]> =>   { 
 // }
-// Detect Arduino and LARIT corresponding ports
-electron_1.ipcMain.on('getSerialPorts', function () { return __awaiter(void 0, void 0, void 0, function () {
-    var arduinoPath, arduino;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                serialPort.list().then(function (ports) { return console.log(ports); });
-                return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
-            case 1:
-                arduinoPath = _a.sent();
-                arduino = new serialPort({
-                    path: arduinoPath,
-                    baudRate: 115200
-                });
-                console.log('Connected to arduino at port', arduinoPath);
-                electron_1.ipcMain.on('arduinoWrite', function (event, message) {
-                    // arduino.write('Send Data from GUI - ' + message);
-                    console.log('Send Data from GUI - ' + message.split(','));
-                    arduino.write(message.split(',')[0]);
-                    arduino.write(message.split(',')[1]);
-                    arduino.write(message.split(',')[2]);
-                    arduino.write('<179> \\n');
-                });
-                electron_1.ipcMain.on('arduinoRead', function (event, message) {
-                    arduino.on('readable', function () {
-                        console.log('Data:', arduino.read());
-                    });
-                });
-                return [2 /*return*/];
-        }
-    });
-}); });
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

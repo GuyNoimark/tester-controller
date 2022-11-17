@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
-import Chart from "react-apexcharts";
 import {
   Button,
   CustomProvider,
@@ -25,8 +24,9 @@ import {
   Timeline,
 } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
-import SessionInput from "./components/SessionSettingsPanel";
+import SessionInput from "./Components/SessionSettingsPanel";
 import socketIOClient from "socket.io-client";
+import ChartPanel from "./Components/ChartPanel";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -38,11 +38,9 @@ function App() {
   const [show, setShow] = React.useState(true);
   const onChange = () => setShow(!show);
 
-  const defaultPadding = 20;
+  const [forceTarget, setForceTarget] = useState(1000);
 
-  let data: ApexAxisChartSeries = [
-    { data: Array.from({ length: 40 }, () => Math.floor(Math.random() * 40)) },
-  ];
+  const defaultPadding = 20;
 
   // ipcRenderer.send("searchSerialPort", "test");
 
@@ -60,24 +58,14 @@ function App() {
           padding: defaultPadding,
         }}
       >
-        {/* <Button appearance="primary">Hello World</Button> */}
-        {/* <Header>
-          <ButtonToolbar>
-            <Button appearance="default" onClick={switchTheme} value="light">
-              Light theme(default)
-            </Button>
-            <Button appearance="primary" onClick={switchTheme} value="dark">
-              Dark theme
-            </Button>
-            <Button
-              appearance="ghost"
-              onClick={switchTheme}
-              value="high-contrast"
-            >
-              High contrast theme
-            </Button>
-          </ButtonToolbar>
-        </Header> */}
+        {/* <ButtonToolbar>
+          <Button appearance="default" onClick={switchTheme} value="light">
+            Light theme
+          </Button>
+          <Button appearance="primary" onClick={switchTheme} value="dark">
+            Dark theme
+          </Button>
+        </ButtonToolbar> */}
         {/* <Divider></Divider> */}
         <div>
           <Grid fluid>
@@ -85,7 +73,9 @@ function App() {
               <Col md={8}>
                 <Stack direction="column" spacing={20} alignItems="stretch">
                   <SessionInput
+                    // onPropertyChange={(formData) => }
                     onClick={(formData) => {
+                      setForceTarget(formData.force);
                       window.electronAPI.writeArduino(
                         `${formData.iterations},${formData.force},${formData.push}`
                       );
@@ -121,41 +111,7 @@ function App() {
               </Col>
               <Col md={16}>
                 <Row>
-                  <Panel expanded={true} shaded>
-                    <Chart
-                      options={{
-                        chart: {
-                          id: "realtime",
-                          animations: {
-                            enabled: true,
-                            easing: "linear",
-                            dynamicAnimation: {
-                              speed: 1000,
-                            },
-                          },
-                          toolbar: {
-                            show: true,
-                          },
-                          zoom: {
-                            enabled: false,
-                          },
-                        },
-                        stroke: {
-                          curve: "straight",
-                        },
-                        // xaxis: {
-                        //   type: 'datetime',
-                        //   range: XAXISRANGE,
-                        // },
-                        yaxis: {
-                          max: 50,
-                        },
-                      }}
-                      series={data}
-                      type="line"
-                      // width="500"
-                    />
-                  </Panel>
+                  <ChartPanel forceTarget={forceTarget} />
                 </Row>
               </Col>
             </Row>
