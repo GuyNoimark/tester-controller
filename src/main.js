@@ -71,7 +71,8 @@ function createWindow() {
                     return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
                 case 2:
                     LARITPath = _a.sent();
-                    if (arduinoPath !== undefined && LARITPath !== undefined) {
+                    // if (arduinoPath !== undefined && LARITPath !== undefined) {
+                    if (LARITPath !== undefined) {
                         LARIT_1 = new serialPort({
                             path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
                             baudRate: 9600

@@ -79,7 +79,7 @@ const ChartPanel = (props: { forceTarget: number }) => {
                       color: "#fff",
                       background: "#f08901",
                     },
-                    text: "Force target: 40",
+                    text: "Force target: " + props.forceTarget,
                   },
                 },
               ],
