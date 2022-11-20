@@ -45,7 +45,7 @@ function App() {
 
   const [forceTarget, setForceTarget] = useState(1000);
 
-  const defaultPadding = 20;
+  const defaultPadding = 30;
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -55,6 +55,8 @@ function App() {
 
   // const ENDPOINT = "http://127.0.0.1:4001";
   // const [response, setResponse] = useState("");
+
+  // const [reloadPorts, setReloadPorts] = useState(false);
 
   useEffect(() => {
     const getReponse = async () => await window.electronAPI.getSerialPorts();
@@ -160,8 +162,9 @@ function App() {
                 style={{
                   background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
                 }}
+                loading
               >
-                Ok
+                Try Again
               </Button>
             </Modal.Footer>
           </Modal>

@@ -1,5 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
+import { start } from "repl";
+import { ReadlineParser } from "serialport";
 import { ConnectionStatus } from "./Models/ConnectionState";
 const isDev = require("electron-is-dev");
 const SerialPort = require("serialport");
@@ -27,6 +29,9 @@ function createWindow() {
         mainWindow.webContents.openDevTools();
     }
 
+    let startTest = false;
+    let iterationsPreformed = 0;
+
     // Detect Arduino and LARIT corresponding ports
     ipcMain.handle('getSerialPorts', async () => {
         // serialPort.list().then((ports: SerialPort[]) => console.log(ports));
@@ -34,34 +39,46 @@ function createWindow() {
         const arduinoPath = await serialPort.list().then((ports: SerialPort[]) => ports.find((port) => port.pnpId === ARDUINO_PNP_ID)?.path);
         const LARITPath = await serialPort.list().then((ports: SerialPort[]) => ports.find((port) => port.pnpId === LARIT_PNP_ID)?.path);
 
-        // if (arduinoPath !== undefined && LARITPath !== undefined) {
-        if (LARITPath !== undefined) {
+        if (arduinoPath !== undefined && LARITPath !== undefined) {
 
-        // const arduino = new serialPort({
-        //     path: arduinoPath ,
-        //     baudRate: 115200
-        // });
+        const arduino = new serialPort({
+            path: arduinoPath ,
+            baudRate: 115200
+        });
 
         const LARIT = new serialPort({
             path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
             baudRate: 9600
         });
 
-        console.log('Connected to arduino at port', arduinoPath)
-        console.log('Connected to LARIT at port', LARITPath)
+        console.log('Connected to arduino at port', arduinoPath);
+        console.log('Connected to LARIT at port', LARITPath);
+
+        arduino.on('readable', function () {
+            console.log('Arduino Answer:', arduino.read().toString())
+          })
 
         ipcMain.on('arduinoWrite', (event, message: String) => { 
 
             // arduino.write('Send Data from GUI - ' + message);
-            console.log('Send Data from GUI - ' + message.split(','))
+            const settings: String[] = message.split(',');
+            // const Iter: Float32Array = toBytes(settings[0]);
+            // const force: Float32Array = toBytes(settings[0]);
+            // const push: Float32Array = toBytes(settings[0]);
 
-
-                // arduino.write(message.split(',')[0]);
-                // arduino.write(message.split(',')[1]);
-                // arduino.write(message.split(',')[2]);
-                // arduino.write('<179> \\n');
-
+            arduino.write(`<${settings[0]}> \n`);
+            arduino.write(`<${settings[1]}> \n`);
+            arduino.write(`<${settings[2] ? 1 : 2}> \n`);
+            arduino.write('<179>');
+            
+            // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
+            console.log('Send Data from GUI - ' + settings);
+            
+            setInterval( () => {
+                 startTest = true;
+            },1000)
         });
+
 
 
         ipcMain.on('arduinoRead', (event, message: String) => { 
@@ -83,12 +100,28 @@ function createWindow() {
     
                 
             });
-        }, 50);
+        }, 20);
             
         LARIT.on('data', function (data: Buffer ) {
             const formattedData: string = data.toString('utf8').slice(0,-3);
-            console.log('Data:', parseFloat(formattedData) * -1);
-            mainWindow.webContents.send('getSensorValue', parseFloat(formattedData) * -1);
+            const sensorValue: number = parseFloat(formattedData) * -1;
+            // const sensorValue: number = parseFloat(formattedData);
+            // console.log('Data:', sensorValue);
+
+            if (startTest) {
+
+                arduino.write(sensorValue.toString(), function(err: any) {
+                    if (err) {
+                      return console.log('Error on write: ', err.message);
+                    } 
+                    // console.log('Sent:', sensorValue)
+                })
+                // arduino.on('data', function (data: Buffer ) {
+                //   console.log('Arduino message: ' , data);
+                // })                
+            };
+            
+            mainWindow.webContents.send('getSensorValue',sensorValue);
 
         });
 
@@ -118,14 +151,23 @@ function createWindow() {
     });
 }
 
-const ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F"
-const LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530"
+const ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
+const LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
 
 interface SerialPort {
     path: String,
     pnpId: String,
     manufacturer: String
 }
+
+const toBytes = (string: String) => {
+	const buffer = Buffer.from(string, 'utf8');
+	const result = Array(buffer.length);
+	for (var i = 0; i < buffer.length; i++) {
+		result[i] = buffer[i];
+	}
+	return result;
+};
 
 // const getPorts = (): SerialPort[] => serialPort.list().then(() => {
 //     // Promise approach

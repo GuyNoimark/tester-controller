@@ -60,9 +60,11 @@ function createWindow() {
     if (isDev) {
         mainWindow.webContents.openDevTools();
     }
+    var startTest = false;
+    var iterationsPreformed = 0;
     // Detect Arduino and LARIT corresponding ports
     electron_1.ipcMain.handle('getSerialPorts', function () { return __awaiter(_this, void 0, void 0, function () {
-        var arduinoPath, LARITPath, LARIT_1;
+        var arduinoPath, LARITPath, arduino_1, LARIT_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
@@ -71,21 +73,35 @@ function createWindow() {
                     return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
                 case 2:
                     LARITPath = _a.sent();
-                    // if (arduinoPath !== undefined && LARITPath !== undefined) {
-                    if (LARITPath !== undefined) {
+                    if (arduinoPath !== undefined && LARITPath !== undefined) {
+                        arduino_1 = new serialPort({
+                            path: arduinoPath,
+                            baudRate: 115200
+                        });
                         LARIT_1 = new serialPort({
                             path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
                             baudRate: 9600
                         });
                         console.log('Connected to arduino at port', arduinoPath);
                         console.log('Connected to LARIT at port', LARITPath);
+                        arduino_1.on('readable', function () {
+                            console.log('Arduino Answer:', arduino_1.read().toString());
+                        });
                         electron_1.ipcMain.on('arduinoWrite', function (event, message) {
                             // arduino.write('Send Data from GUI - ' + message);
-                            console.log('Send Data from GUI - ' + message.split(','));
-                            // arduino.write(message.split(',')[0]);
-                            // arduino.write(message.split(',')[1]);
-                            // arduino.write(message.split(',')[2]);
-                            // arduino.write('<179> \\n');
+                            var settings = message.split(',');
+                            // const Iter: Float32Array = toBytes(settings[0]);
+                            // const force: Float32Array = toBytes(settings[0]);
+                            // const push: Float32Array = toBytes(settings[0]);
+                            arduino_1.write("<".concat(settings[0], "> \n"));
+                            arduino_1.write("<".concat(settings[1], "> \n"));
+                            arduino_1.write("<".concat(settings[2] ? 1 : 2, "> \n"));
+                            arduino_1.write('<179>');
+                            // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
+                            console.log('Send Data from GUI - ' + settings);
+                            setInterval(function () {
+                                startTest = true;
+                            }, 1000);
                         });
                         electron_1.ipcMain.on('arduinoRead', function (event, message) {
                             // arduino.on('readable', function () {
@@ -99,11 +115,25 @@ function createWindow() {
                                 }
                                 // console.log('Sent request to LARIT');
                             });
-                        }, 50);
+                        }, 20);
                         LARIT_1.on('data', function (data) {
                             var formattedData = data.toString('utf8').slice(0, -3);
-                            console.log('Data:', parseFloat(formattedData) * -1);
-                            mainWindow.webContents.send('getSensorValue', parseFloat(formattedData) * -1);
+                            var sensorValue = parseFloat(formattedData) * -1;
+                            // const sensorValue: number = parseFloat(formattedData);
+                            // console.log('Data:', sensorValue);
+                            if (startTest) {
+                                arduino_1.write(sensorValue.toString(), function (err) {
+                                    if (err) {
+                                        return console.log('Error on write: ', err.message);
+                                    }
+                                    // console.log('Sent:', sensorValue)
+                                });
+                                // arduino.on('data', function (data: Buffer ) {
+                                //   console.log('Arduino message: ' , data);
+                                // })                
+                            }
+                            ;
+                            mainWindow.webContents.send('getSensorValue', sensorValue);
                         });
                         // ipcMain.on('LARITRead', (event, message: String) => { 
                         //         LARIT.write('?');
@@ -132,6 +162,14 @@ function createWindow() {
 }
 var ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
 var LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
+var toBytes = function (string) {
+    var buffer = Buffer.from(string, 'utf8');
+    var result = Array(buffer.length);
+    for (var i = 0; i < buffer.length; i++) {
+        result[i] = buffer[i];
+    }
+    return result;
+};
 // const getPorts = (): SerialPort[] => serialPort.list().then(() => {
 //     // Promise approach
 //     return serialPort.list().then((ports: SerialPort[]) => {
