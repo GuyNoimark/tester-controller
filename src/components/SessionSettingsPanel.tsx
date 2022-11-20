@@ -85,12 +85,12 @@ const SessionSettingsPanel = (props: {
 
   return (
     <>
-      <Panel header={"Session Settings"} shaded>
+      <Panel header={"Session Settings"} shaded bordered>
         <Stack direction="column" spacing={20} alignItems="stretch">
           <InputNumber
             min={0}
             step={1}
-            defaultValue={3}
+            // defaultValue={3}
             prefix="Iterations"
             onChange={(value) =>
               setData({
@@ -103,7 +103,7 @@ const SessionSettingsPanel = (props: {
           <InputNumber
             min={1}
             step={1}
-            defaultValue={5}
+            // defaultValue={5}
             prefix="Neuton Force"
             onChange={(value) =>
               setData({
@@ -158,9 +158,17 @@ const SessionSettingsPanel = (props: {
             max={100}
             progress
           />
-
+          {/* <Toggle
+            size="md"
+            checkedChildren="Dark Mode"
+            unCheckedChildren="Light Mode"
+            disabled={!enableAdvanced}
+          /> */}
           <Button
             appearance="primary"
+            style={{
+              background: "linear-gradient(87deg, #11cdef 0, #1171ef 100%)",
+            }}
             onClick={() => {
               const validationResponse = validate(formData);
 

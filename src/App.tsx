@@ -64,7 +64,7 @@ function App() {
         handleOpen();
       }
     });
-  });
+  }, []);
 
   return (
     <CustomProvider theme={theme}>
@@ -86,9 +86,9 @@ function App() {
         {/* <Divider></Divider> */}
         <div>
           <Grid fluid>
-            <Row gutter={20}>
+            <Row gutter={30}>
               <Col md={8}>
-                <Stack direction="column" spacing={20} alignItems="stretch">
+                <Stack direction="column" spacing={30} alignItems="stretch">
                   <SessionInput
                     // onPropertyChange={(formData) => }
                     onClick={(formData) => {
@@ -98,14 +98,22 @@ function App() {
                       );
                     }}
                   ></SessionInput>
-                  <Button
+                  {/* <Button
                     onClick={() => {
                       window.electronAPI.readArduino();
                     }}
                   >
                     Read
-                  </Button>
-                  <Panel header="Session Progress" shaded>
+                  </Button> */}
+                  <Panel
+                    header="Session Progress"
+                    shaded
+                    bordered
+                    style={{
+                      background:
+                        "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
+                    }}
+                  >
                     <Stack direction="column" spacing={20} alignItems="stretch">
                       <Progress.Line percent={45} status="active" />
                       <Timeline>
@@ -149,6 +157,9 @@ function App() {
                 onClick={handleClose}
                 appearance="primary"
                 color={"orange"}
+                style={{
+                  background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
+                }}
               >
                 Ok
               </Button>

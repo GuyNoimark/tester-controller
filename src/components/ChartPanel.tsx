@@ -31,7 +31,7 @@ const ChartPanel = (props: { forceTarget: number }) => {
 
   return (
     <>
-      <Panel expanded={true} shaded>
+      <Panel expanded={true} shaded bordered>
         <Chart
           options={{
             chart: {
@@ -63,8 +63,8 @@ const ChartPanel = (props: { forceTarget: number }) => {
               //   range: XAXISRANGE,
             },
             yaxis: {
-              min: 0,
-              max: 50,
+              min: -20,
+              max: 20,
 
               //   tickAmount: 10,
             },
