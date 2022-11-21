@@ -48,9 +48,8 @@ function App() {
   const defaultPadding = 30;
 
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [getPorts, setGetPorts] = useState(false);
   // ipcRenderer.send("searchSerialPort", "test");
 
   // const ENDPOINT = "http://127.0.0.1:4001";
@@ -60,13 +59,20 @@ function App() {
 
   useEffect(() => {
     const getReponse = async () => await window.electronAPI.getSerialPorts();
-    getReponse().then((response: ConnectionStatus) => {
-      if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-        setErrorMessage(response.toString());
-        handleOpen();
-      }
-    });
-  }, []);
+    setTimeout(
+      () =>
+        getReponse().then((response: ConnectionStatus) => {
+          if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+            setErrorMessage(response.toString());
+            setOpen(true);
+          } else {
+            setOpen(false);
+          }
+          setGetPorts(false);
+        }),
+      500
+    );
+  }, [getPorts]);
 
   return (
     <CustomProvider theme={theme}>
@@ -143,7 +149,7 @@ function App() {
               </Col>
             </Row>
           </Grid>
-          <Modal open={open} onClose={handleClose} size={"xs"}>
+          <Modal open={open} onClose={() => setOpen(false)} size={"xs"}>
             <Modal.Header>
               <Modal.Title>
                 {" "}
@@ -156,13 +162,13 @@ function App() {
             <Modal.Body>{errorMessage}</Modal.Body>
             <Modal.Footer>
               <Button
-                onClick={handleClose}
+                onClick={() => setGetPorts(true)}
                 appearance="primary"
                 color={"orange"}
                 style={{
                   background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
                 }}
-                loading
+                loading={getPorts}
               >
                 Try Again
               </Button>

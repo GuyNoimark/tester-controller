@@ -31,131 +31,143 @@ function createWindow() {
   let iterationsPreformed = 0;
   let realForceCounter: number = 0;
 
-  // Detect Arduino and LARIT corresponding ports
   ipcMain.handle("getSerialPorts", async () => {
-    // serialPort.list().then((ports: SerialPort[]) => console.log(ports));
+    const paths: DevicesPaths = await connectDevicesPaths();
 
-    const arduinoPath = await serialPort
-      .list()
-      .then(
-        (ports: SerialPort[]) =>
-          ports.find((port) => port.pnpId === ARDUINO_PNP_ID)?.path
-      );
-    const LARITPath = await serialPort
-      .list()
-      .then(
-        (ports: SerialPort[]) =>
-          ports.find((port) => port.pnpId === LARIT_PNP_ID)?.path
-      );
-
-    if (arduinoPath !== undefined && LARITPath !== undefined) {
-      const arduino = new serialPort({
-        path: arduinoPath,
-        baudRate: 115200,
-      });
-
-      const LARIT = new serialPort({
-        path:
-          LARITPath !== undefined
-            ? LARITPath
-            : console.log("LARIT is path is undefined"),
-        baudRate: 9600,
-      });
-
-      console.log("Connected to arduino at port", arduinoPath);
-      console.log("Connected to LARIT at port", LARITPath);
-
-      arduino.on("readable", function () {
-        console.log("Arduino Answer:", arduino.read().toString("utf8"));
-      });
-
-      ipcMain.on("arduinoWrite", (event, message: String) => {
-        // arduino.write('Send Data from GUI - ' + message);
-        const settings: String[] = message.split(",");
-        // const Iter: Float32Array = toBytes(settings[0]);
-        // const force: Float32Array = toBytes(settings[0]);
-        // const push: Float32Array = toBytes(settings[0]);
-
-        arduino.write(`<${settings[0]}> \n`);
-        arduino.write(`<${settings[1]}> \n`);
-        arduino.write(`<${settings[2] ? 1 : 2}> \n`);
-        arduino.write(`<${(537.7 / 3) * 5}>`);
-
-        // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
-        console.log("Send Data from GUI - " + settings);
-
-        startTest = true;
-        // setInterval( () => {
-        // },1000)
-      });
-
-      ipcMain.on("arduinoRead", (event, message: String) => {
-        // arduino.on('readable', function () {
-        //     console.log('Data:', arduino.read());
-        //   })
-      });
-
-      setInterval(() => {
-        LARIT.write("?", function (err: any) {
-          if (err) {
-            return console.log("LARIT - Error on write: ", err.message);
-          }
-          // console.log('Sent request to LARIT');
-        });
-      }, 20);
-
-      LARIT.on("data", function (data: Buffer) {
-        const formattedData: string = data.toString("utf8").slice(0, -3);
-        let sensorValue: number = parseFloat(formattedData);
-        // console.log('Data:', sensorValue);
-
-        // sensorValue !== 0 ? realForceCounter += 1 : realForceCounter == 0 ;
-
-        if (startTest) {
-          if (sensorValue !== 0) {
-            realForceCounter += 1;
-
-            if (realForceCounter < 2) sensorValue = 0.0;
-          } else {
-            realForceCounter = 0;
-          }
-
-          arduino.write(sensorValue.toString(), function (err: any) {
-            if (err) {
-              return console.log("Arduino - Error on write: ", err.message);
-            }
-            // console.log('Sent:', sensorValue)
-          });
-          // arduino.on('data', function (data: Buffer ) {
-          //   console.log('Arduino message: ' , data);
-          // })
-        }
-
-        mainWindow.webContents.send("getSensorValue", sensorValue);
-      });
-
-      // ipcMain.on('LARITRead', (event, message: String) => {
-      //         LARIT.write('?');
-      //         LARIT.on('readable', function () {
-      //             const data = LARIT.read();
-      //           })
-
-      // });
-
-      // const LARIT = new SerialPort({
-      //     path: serialPort.list().then((port: SerialPortType) => port.pnpId === LARIT_PNP_ID ? port : undefined),
-      //     baudRate: 115200
-      // });
-      return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
-    } else {
-      if (arduinoPath === undefined && LARITPath === undefined)
-        return ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED;
-      if (arduinoPath === undefined)
-        return ConnectionStatus.ARDUINO_IS_NOT_CONNECTED;
-      if (LARITPath === undefined)
-        return ConnectionStatus.LARIT_IS_NOT_CONNECTED;
-    }
+    if (paths.arduinoPath === undefined && paths.LARITPath === undefined)
+      return ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED;
+    if (paths.arduinoPath === undefined)
+      return ConnectionStatus.ARDUINO_IS_NOT_CONNECTED;
+    if (paths.LARITPath === undefined)
+      return ConnectionStatus.LARIT_IS_NOT_CONNECTED;
+    else return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
   });
+
+  // Detect Arduino and LARIT corresponding ports
+  //   ipcMain.handle("getSerialPorts", async () => {
+  //     // serialPort.list().then((ports: SerialPort[]) => console.log(ports));
+
+  //     const arduinoPath = await serialPort
+  //       .list()
+  //       .then(
+  //         (ports: SerialPort[]) =>
+  //           ports.find((port) => port.pnpId === ARDUINO_PNP_ID)?.path
+  //       );
+  //     const LARITPath = await serialPort
+  //       .list()
+  //       .then(
+  //         (ports: SerialPort[]) =>
+  //           ports.find((port) => port.pnpId === LARIT_PNP_ID)?.path
+  //       );
+
+  //     if (arduinoPath !== undefined && LARITPath !== undefined) {
+  //       const arduino = new serialPort({
+  //         path: arduinoPath,
+  //         baudRate: 115200,
+  //       });
+
+  //       const LARIT = new serialPort({
+  //         path:
+  //           LARITPath !== undefined
+  //             ? LARITPath
+  //             : console.log("LARIT is path is undefined"),
+  //         baudRate: 9600,
+  //       });
+
+  //       console.log("Connected to arduino at port", arduinoPath);
+  //       console.log("Connected to LARIT at port", LARITPath);
+
+  //       arduino.on("readable", function () {
+  //         console.log("Arduino Answer:", arduino.read().toString("utf8"));
+  //       });
+
+  //       ipcMain.on("arduinoWrite", (event, message: String) => {
+  //         // arduino.write('Send Data from GUI - ' + message);
+  //         const settings: String[] = message.split(",");
+  //         // const Iter: Float32Array = toBytes(settings[0]);
+  //         // const force: Float32Array = toBytes(settings[0]);
+  //         // const push: Float32Array = toBytes(settings[0]);
+
+  //         arduino.write(`<${settings[0]}> \n`);
+  //         arduino.write(`<${settings[1]}> \n`);
+  //         arduino.write(`<${settings[2] ? 1 : 2}> \n`);
+  //         arduino.write(`<${(537.7 / 3) * 5}>`);
+
+  //         // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
+  //         console.log("Send Data from GUI - " + settings);
+
+  //         startTest = true;
+  //         // setInterval( () => {
+  //         // },1000)
+  //       });
+
+  //       ipcMain.on("arduinoRead", (event, message: String) => {
+  //         // arduino.on('readable', function () {
+  //         //     console.log('Data:', arduino.read());
+  //         //   })
+  //       });
+
+  //       setInterval(() => {
+  //         LARIT.write("?", function (err: any) {
+  //           if (err) {
+  //             return console.log("LARIT - Error on write: ", err.message);
+  //           }
+  //           // console.log('Sent request to LARIT');
+  //         });
+  //       }, 20);
+
+  //       LARIT.on("data", function (data: Buffer) {
+  //         const formattedData: string = data.toString("utf8").slice(0, -3);
+  //         let sensorValue: number = parseFloat(formattedData);
+  //         // console.log('Data:', sensorValue);
+
+  //         // sensorValue !== 0 ? realForceCounter += 1 : realForceCounter == 0 ;
+
+  //         if (startTest) {
+  //           if (sensorValue !== 0) {
+  //             realForceCounter += 1;
+
+  //             if (realForceCounter < 2) sensorValue = 0.0;
+  //           } else {
+  //             realForceCounter = 0;
+  //           }
+
+  //           arduino.write(sensorValue.toString(), function (err: any) {
+  //             if (err) {
+  //               return console.log("Arduino - Error on write: ", err.message);
+  //             }
+  //             // console.log('Sent:', sensorValue)
+  //           });
+  //           // arduino.on('data', function (data: Buffer ) {
+  //           //   console.log('Arduino message: ' , data);
+  //           // })
+  //         }
+
+  //         mainWindow.webContents.send("getSensorValue", sensorValue);
+  //       });
+
+  //       // ipcMain.on('LARITRead', (event, message: String) => {
+  //       //         LARIT.write('?');
+  //       //         LARIT.on('readable', function () {
+  //       //             const data = LARIT.read();
+  //       //           })
+
+  //       // });
+
+  //       // const LARIT = new SerialPort({
+  //       //     path: serialPort.list().then((port: SerialPortType) => port.pnpId === LARIT_PNP_ID ? port : undefined),
+  //       //     baudRate: 115200
+  //       // });
+  //       return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
+  //     } else {
+  //       if (arduinoPath === undefined && LARITPath === undefined)
+  //         return ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED;
+  //       if (arduinoPath === undefined)
+  //         return ConnectionStatus.ARDUINO_IS_NOT_CONNECTED;
+  //       if (LARITPath === undefined)
+  //         return ConnectionStatus.LARIT_IS_NOT_CONNECTED;
+  //     }
+  //   });
 }
 
 const ARDUINO_PNP_ID =
@@ -167,6 +179,22 @@ interface SerialPort {
   pnpId: String;
   manufacturer: String;
 }
+interface DevicesPaths {
+  arduinoPath: String | undefined;
+  LARITPath: String | undefined;
+}
+
+const connectDevicesPaths = async (): Promise<DevicesPaths> => {
+  const portsAvailable: SerialPort[] = await serialPort.list();
+  const _arduinoPath = portsAvailable.find(
+    (port) => port.pnpId === ARDUINO_PNP_ID
+  )?.pnpId;
+  const _LARITPath = portsAvailable.find(
+    (port) => port.pnpId === LARIT_PNP_ID
+  )?.pnpId;
+
+  return { arduinoPath: _arduinoPath, LARITPath: _LARITPath };
+};
 
 const toBytes = (string: String) => {
   const buffer = Buffer.from(string, "utf8");
