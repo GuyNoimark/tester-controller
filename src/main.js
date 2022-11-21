@@ -64,14 +64,18 @@ function createWindow() {
     var iterationsPreformed = 0;
     var realForceCounter = 0;
     // Detect Arduino and LARIT corresponding ports
-    electron_1.ipcMain.handle('getSerialPorts', function () { return __awaiter(_this, void 0, void 0, function () {
-        var arduinoPath, LARITPath, arduino_1, LARIT_1;
+    electron_1.ipcMain.handle("getSerialPorts", function () { return __awaiter(_this, void 0, void 0, function () {
+        var arduinoPath, LARITPath, arduino_1, LARIT_1, getSensorValue_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
+                case 0: return [4 /*yield*/, serialPort
+                        .list()
+                        .then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
                 case 1:
                     arduinoPath = _a.sent();
-                    return [4 /*yield*/, serialPort.list().then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
+                    return [4 /*yield*/, serialPort
+                            .list()
+                            .then(function (ports) { var _a; return (_a = ports.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path; })];
                 case 2:
                     LARITPath = _a.sent();
                     if (arduinoPath !== undefined && LARITPath !== undefined) {
@@ -80,17 +84,34 @@ function createWindow() {
                             baudRate: 115200
                         });
                         LARIT_1 = new serialPort({
-                            path: LARITPath !== undefined ? LARITPath : console.log('LARIT is path is undefined'),
+                            path: LARITPath !== undefined
+                                ? LARITPath
+                                : console.log("LARIT is path is undefined"),
                             baudRate: 9600
                         });
-                        console.log('Connected to arduino at port', arduinoPath);
-                        console.log('Connected to LARIT at port', LARITPath);
-                        arduino_1.on('readable', function () {
-                            console.log('Arduino Answer:', arduino_1.read().toString('utf8'));
+                        console.log("Connected to arduino at port", arduinoPath);
+                        console.log("Connected to LARIT at port", LARITPath);
+                        arduino_1.on("readable", function () {
+                            console.log("Arduino Answer:", arduino_1.read().toString("utf8"));
                         });
-                        electron_1.ipcMain.on('arduinoWrite', function (event, message) {
+                        getSensorValue_1 = function () {
+                            LARIT_1.write("?", function (err) {
+                                if (err) {
+                                    return console.log("LARIT - Error on write: ", err.message);
+                                }
+                                // console.log('Sent request to LARIT');
+                                LARIT_1.on("data", function (data) {
+                                    var formattedData = data.toString("utf8").slice(0, -3);
+                                    var sensorValue = parseFloat(formattedData);
+                                    mainWindow.webContents.send("getSensorValue", sensorValue * -1);
+                                    return sensorValue;
+                                });
+                            });
+                            return undefined;
+                        };
+                        electron_1.ipcMain.on("arduinoWrite", function (event, message) {
                             // arduino.write('Send Data from GUI - ' + message);
-                            var settings = message.split(',');
+                            var settings = message.split(",");
                             // const Iter: Float32Array = toBytes(settings[0]);
                             // const force: Float32Array = toBytes(settings[0]);
                             // const push: Float32Array = toBytes(settings[0]);
@@ -99,53 +120,60 @@ function createWindow() {
                             arduino_1.write("<".concat(settings[2] ? 1 : 2, "> \n"));
                             arduino_1.write("<".concat((537.7 / 3) * 10, ">"));
                             // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
-                            console.log('Send Data from GUI - ' + settings);
+                            console.log("Send Data from GUI - " + settings);
                             startTest = true;
                             // setInterval( () => {
                             // },1000)
+                            while (true) {
+                                var sensorValue = getSensorValue_1();
+                                if (sensorValue !== undefined) {
+                                    arduino_1.write(sensorValue.toString(), function (err) {
+                                        if (err) {
+                                            return console.log("Arduino - Error on write: ", err.message);
+                                        }
+                                        // console.log('Sent:', sensorValue)
+                                    });
+                                }
+                            }
                         });
-                        electron_1.ipcMain.on('arduinoRead', function (event, message) {
+                        electron_1.ipcMain.on("arduinoRead", function (event, message) {
                             // arduino.on('readable', function () {
                             //     console.log('Data:', arduino.read());
                             //   })
                         });
-                        setInterval(function () {
-                            LARIT_1.write('?', function (err) {
-                                if (err) {
-                                    return console.log('LARIT - Error on write: ', err.message);
-                                }
-                                // console.log('Sent request to LARIT');
-                            });
-                        }, 20);
-                        LARIT_1.on('data', function (data) {
-                            var formattedData = data.toString('utf8').slice(0, -3);
-                            var sensorValue = parseFloat(formattedData);
-                            // console.log('Data:', sensorValue);
-                            // sensorValue !== 0 ? realForceCounter += 1 : realForceCounter == 0 ;
-                            if (startTest) {
-                                if (sensorValue !== 0) {
-                                    realForceCounter += 1;
-                                    if (realForceCounter < 2)
-                                        sensorValue = 0.0;
-                                }
-                                else {
-                                    realForceCounter = 0;
-                                }
-                                ;
-                                arduino_1.write(sensorValue.toString(), function (err) {
-                                    if (err) {
-                                        return console.log('Arduino - Error on write: ', err.message);
-                                    }
-                                    // console.log('Sent:', sensorValue)
-                                });
-                                // arduino.on('data', function (data: Buffer ) {
-                                //   console.log('Arduino message: ' , data);
-                                // })                
-                            }
-                            ;
-                            mainWindow.webContents.send('getSensorValue', sensorValue);
-                        });
-                        // ipcMain.on('LARITRead', (event, message: String) => { 
+                        // setInterval(() => {
+                        //     LARIT.write('?', function(err: any) {
+                        //         if (err) {
+                        //           return console.log('LARIT - Error on write: ', err.message);
+                        //         }
+                        //         // console.log('Sent request to LARIT');
+                        //     });
+                        // }, 20);
+                        // LARIT.on("data", function (data: Buffer) {
+                        //     const formattedData: string = data.toString("utf8").slice(0, -3);
+                        //     let sensorValue: number = parseFloat(formattedData);
+                        //     // console.log('Data:', sensorValue);
+                        //     // sensorValue !== 0 ? realForceCounter += 1 : realForceCounter == 0 ;
+                        //     if (startTest) {
+                        //         if (sensorValue !== 0) {
+                        //             realForceCounter += 1;
+                        //             if (realForceCounter < 2) sensorValue = 0.0;
+                        //         } else {
+                        //             realForceCounter = 0;
+                        //         }
+                        //         arduino.write(sensorValue.toString(), function (err: any) {
+                        //             if (err) {
+                        //                 return console.log("Arduino - Error on write: ", err.message);
+                        //             }
+                        //             // console.log('Sent:', sensorValue)
+                        //         });
+                        //         // arduino.on('data', function (data: Buffer ) {
+                        //         //   console.log('Arduino message: ' , data);
+                        //         // })
+                        //     }
+                        //     mainWindow.webContents.send("getSensorValue", sensorValue);
+                        // });
+                        // ipcMain.on('LARITRead', (event, message: String) => {
                         //         LARIT.write('?');
                         //         LARIT.on('readable', function () {
                         //             const data = LARIT.read();
@@ -172,15 +200,6 @@ function createWindow() {
 }
 var ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
 var LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
-;
-var toBytes = function (string) {
-    var buffer = Buffer.from(string, 'utf8');
-    var result = Array(buffer.length);
-    for (var i = 0; i < buffer.length; i++) {
-        result[i] = buffer[i];
-    }
-    return result;
-};
 // const getPorts = (): SerialPort[] => serialPort.list().then(() => {
 //     // Promise approach
 //     return serialPort.list().then((ports: SerialPort[]) => {
@@ -190,14 +209,14 @@ var toBytes = function (string) {
 //         return ports
 //     });
 // });
-// const getPorts = async ():Promise<SerialPort[]> =>   { 
+// const getPorts = async ():Promise<SerialPort[]> =>   {
 // }
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 electron_1.app.whenReady().then(function () {
     createWindow();
-    // 
+    //
     electron_1.app.on("activate", function () {
         // On macOS it's common to re-create a window in the app when the
         // dock icon is clicked and there are no other windows open.
@@ -205,7 +224,7 @@ electron_1.app.whenReady().then(function () {
             createWindow();
     });
 });
-// 
+//
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
@@ -214,6 +233,6 @@ electron_1.app.on("window-all-closed", function () {
         electron_1.app.quit();
     }
 });
-// 
+//
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
