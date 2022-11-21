@@ -29,8 +29,10 @@ function createWindow() {
         mainWindow.webContents.openDevTools();
     }
 
-    let startTest = false;
+    let startTest: boolean = false;
     let iterationsPreformed = 0;
+    let realForceCounter: number = 0;
+
 
     // Detect Arduino and LARIT corresponding ports
     ipcMain.handle('getSerialPorts', async () => {
@@ -55,8 +57,8 @@ function createWindow() {
         console.log('Connected to LARIT at port', LARITPath);
 
         arduino.on('readable', function () {
-            console.log('Arduino Answer:', arduino.read().toString())
-          })
+            console.log('Arduino Answer:', arduino.read().toString('utf8'));
+        });
 
         ipcMain.on('arduinoWrite', (event, message: String) => { 
 
@@ -69,14 +71,14 @@ function createWindow() {
             arduino.write(`<${settings[0]}> \n`);
             arduino.write(`<${settings[1]}> \n`);
             arduino.write(`<${settings[2] ? 1 : 2}> \n`);
-            arduino.write('<179>');
+            arduino.write(`<${(537.7 / 3) * 10}>`);
             
             // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
             console.log('Send Data from GUI - ' + settings);
             
-            setInterval( () => {
-                 startTest = true;
-            },1000)
+            startTest = true;
+            // setInterval( () => {
+            // },1000)
         });
 
 
@@ -94,28 +96,45 @@ function createWindow() {
 
             LARIT.write('?', function(err: any) {
                 if (err) {
-                  return console.log('Error on write: ', err.message);
+                  return console.log('LARIT - Error on write: ', err.message);
                 }
                 // console.log('Sent request to LARIT');
     
                 
             });
         }, 20);
+
             
         LARIT.on('data', function (data: Buffer ) {
             const formattedData: string = data.toString('utf8').slice(0,-3);
-            const sensorValue: number = parseFloat(formattedData) * -1;
-            // const sensorValue: number = parseFloat(formattedData);
+            let sensorValue: number = parseFloat(formattedData);
             // console.log('Data:', sensorValue);
 
+            // sensorValue !== 0 ? realForceCounter += 1 : realForceCounter == 0 ;
+
+
+            
+            
+            
             if (startTest) {
 
+                
+                if(sensorValue !== 0) {
+                    realForceCounter += 1;
+                
+                    if (realForceCounter < 2) sensorValue = 0.0;
+                    
+                    
+                } else {
+                    realForceCounter = 0;
+                };
+                
                 arduino.write(sensorValue.toString(), function(err: any) {
                     if (err) {
-                      return console.log('Error on write: ', err.message);
-                    } 
+                      return console.log('Arduino - Error on write: ', err.message);
+                    }
                     // console.log('Sent:', sensorValue)
-                })
+                });
                 // arduino.on('data', function (data: Buffer ) {
                 //   console.log('Arduino message: ' , data);
                 // })                
@@ -158,7 +177,7 @@ interface SerialPort {
     path: String,
     pnpId: String,
     manufacturer: String
-}
+};
 
 const toBytes = (string: String) => {
 	const buffer = Buffer.from(string, 'utf8');

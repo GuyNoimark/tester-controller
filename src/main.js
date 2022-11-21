@@ -62,6 +62,7 @@ function createWindow() {
     }
     var startTest = false;
     var iterationsPreformed = 0;
+    var realForceCounter = 0;
     // Detect Arduino and LARIT corresponding ports
     electron_1.ipcMain.handle('getSerialPorts', function () { return __awaiter(_this, void 0, void 0, function () {
         var arduinoPath, LARITPath, arduino_1, LARIT_1;
@@ -85,7 +86,7 @@ function createWindow() {
                         console.log('Connected to arduino at port', arduinoPath);
                         console.log('Connected to LARIT at port', LARITPath);
                         arduino_1.on('readable', function () {
-                            console.log('Arduino Answer:', arduino_1.read().toString());
+                            console.log('Arduino Answer:', arduino_1.read().toString('utf8'));
                         });
                         electron_1.ipcMain.on('arduinoWrite', function (event, message) {
                             // arduino.write('Send Data from GUI - ' + message);
@@ -96,12 +97,12 @@ function createWindow() {
                             arduino_1.write("<".concat(settings[0], "> \n"));
                             arduino_1.write("<".concat(settings[1], "> \n"));
                             arduino_1.write("<".concat(settings[2] ? 1 : 2, "> \n"));
-                            arduino_1.write('<179>');
+                            arduino_1.write("<".concat((537.7 / 3) * 10, ">"));
                             // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
                             console.log('Send Data from GUI - ' + settings);
-                            setInterval(function () {
-                                startTest = true;
-                            }, 1000);
+                            startTest = true;
+                            // setInterval( () => {
+                            // },1000)
                         });
                         electron_1.ipcMain.on('arduinoRead', function (event, message) {
                             // arduino.on('readable', function () {
@@ -111,20 +112,29 @@ function createWindow() {
                         setInterval(function () {
                             LARIT_1.write('?', function (err) {
                                 if (err) {
-                                    return console.log('Error on write: ', err.message);
+                                    return console.log('LARIT - Error on write: ', err.message);
                                 }
                                 // console.log('Sent request to LARIT');
                             });
                         }, 20);
                         LARIT_1.on('data', function (data) {
                             var formattedData = data.toString('utf8').slice(0, -3);
-                            var sensorValue = parseFloat(formattedData) * -1;
-                            // const sensorValue: number = parseFloat(formattedData);
+                            var sensorValue = parseFloat(formattedData);
                             // console.log('Data:', sensorValue);
+                            // sensorValue !== 0 ? realForceCounter += 1 : realForceCounter == 0 ;
                             if (startTest) {
+                                if (sensorValue !== 0) {
+                                    realForceCounter += 1;
+                                    if (realForceCounter < 2)
+                                        sensorValue = 0.0;
+                                }
+                                else {
+                                    realForceCounter = 0;
+                                }
+                                ;
                                 arduino_1.write(sensorValue.toString(), function (err) {
                                     if (err) {
-                                        return console.log('Error on write: ', err.message);
+                                        return console.log('Arduino - Error on write: ', err.message);
                                     }
                                     // console.log('Sent:', sensorValue)
                                 });
@@ -162,6 +172,7 @@ function createWindow() {
 }
 var ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
 var LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
+;
 var toBytes = function (string) {
     var buffer = Buffer.from(string, 'utf8');
     var result = Array(buffer.length);
