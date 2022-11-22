@@ -58,20 +58,31 @@ function App() {
   // const [reloadPorts, setReloadPorts] = useState(false);
 
   useEffect(() => {
-    const getReponse = async () => await window.electronAPI.getSerialPorts();
+    const getResponse = async () => await window.electronAPI.getSerialPorts();
     setTimeout(
       () =>
-        getReponse().then((response: ConnectionStatus) => {
+        getResponse().then((response: ConnectionStatus) => {
           if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
             setErrorMessage(response.toString());
             setOpen(true);
           } else {
+            console.log("Devices Connected");
             setOpen(false);
+            setGetPorts(false);
           }
           setGetPorts(false);
         }),
       500
     );
+    const removeEventListener = window.electronAPI.getErrors(
+      (event: any, error: string) => {
+        setErrorMessage(error);
+        setOpen(true);
+      }
+    );
+    return () => {
+      removeEventListener();
+    };
   }, [getPorts]);
 
   return (
@@ -149,8 +160,15 @@ function App() {
               </Col>
             </Row>
           </Grid>
-          <Modal open={open} onClose={() => setOpen(false)} size={"xs"}>
-            <Modal.Header>
+          <Modal
+            open={open}
+            onClose={() => setOpen(false)}
+            backdrop={"static"}
+            role="alertdialog"
+            keyboard={false}
+            size={"xs"}
+          >
+            <Modal.Header closeButton={false}>
               <Modal.Title>
                 {" "}
                 <RemindRoundIcon

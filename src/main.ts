@@ -4,8 +4,9 @@ import { start } from "repl";
 import { ReadlineParser } from "serialport";
 import { ConnectionStatus } from "./Models/ConnectionState";
 const isDev = require("electron-is-dev");
-const SerialPort = require("serialport");
-const serialPort = SerialPort.SerialPort;
+// const SerialPort = require("serialport");
+// const serialPort = SerialPort.SerialPort;
+import { SerialPort } from "serialport";
 
 function createWindow() {
   // Create the browser window.
@@ -27,20 +28,35 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
-  let startTest: boolean = false;
+  // let startTest: boolean = false;
   let iterationsPreformed = 0;
   let realForceCounter: number = 0;
 
-  ipcMain.handle("getSerialPorts", async () => {
-    const paths: DevicesPaths = await connectDevicesPaths();
+  checkConnectionStatus().then(async (res) => {
+    //Send connection status to the renderer;
+    ipcMain.handle("getSerialPorts", await checkConnectionStatus);
 
-    if (paths.arduinoPath === undefined && paths.LARITPath === undefined)
-      return ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED;
-    if (paths.arduinoPath === undefined)
-      return ConnectionStatus.ARDUINO_IS_NOT_CONNECTED;
-    if (paths.LARITPath === undefined)
-      return ConnectionStatus.LARIT_IS_NOT_CONNECTED;
-    else return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
+    if (res === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+      const arduino = await getSerialPortDevice(Devices.arduino);
+      const LAIRT = await getSerialPortDevice(Devices.LARIT);
+
+      // Reads arduino serialPort in "flowing mode"
+      arduino.on("data", function (data: any) {
+        console.log("Data:", data.toString("utf8"));
+      });
+
+      //Start the test
+      ipcMain.on("arduinoWrite", async (event, message: string) => {
+        const checkConnection = await checkConnectionStatus();
+        // mainWindow.webContents.send("error", checkConnection);
+        // console.log(checkConnection);
+        checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED
+          ? startTest(arduino, message)
+          : mainWindow.webContents.send("error", checkConnection);
+      });
+    } else {
+      mainWindow.webContents.send("error", res);
+    }
   });
 
   // Detect Arduino and LARIT corresponding ports
@@ -79,26 +95,6 @@ function createWindow() {
 
   //       arduino.on("readable", function () {
   //         console.log("Arduino Answer:", arduino.read().toString("utf8"));
-  //       });
-
-  //       ipcMain.on("arduinoWrite", (event, message: String) => {
-  //         // arduino.write('Send Data from GUI - ' + message);
-  //         const settings: String[] = message.split(",");
-  //         // const Iter: Float32Array = toBytes(settings[0]);
-  //         // const force: Float32Array = toBytes(settings[0]);
-  //         // const push: Float32Array = toBytes(settings[0]);
-
-  //         arduino.write(`<${settings[0]}> \n`);
-  //         arduino.write(`<${settings[1]}> \n`);
-  //         arduino.write(`<${settings[2] ? 1 : 2}> \n`);
-  //         arduino.write(`<${(537.7 / 3) * 5}>`);
-
-  //         // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
-  //         console.log("Send Data from GUI - " + settings);
-
-  //         startTest = true;
-  //         // setInterval( () => {
-  //         // },1000)
   //       });
 
   //       ipcMain.on("arduinoRead", (event, message: String) => {
@@ -170,30 +166,69 @@ function createWindow() {
   //   });
 }
 
-const ARDUINO_PNP_ID =
-  "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
-const LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
-
-interface SerialPort {
-  path: String;
-  pnpId: String;
-  manufacturer: String;
+interface SerialPortData {
+  path: string;
+  pnpId: string;
+  manufacturer: string;
 }
 interface DevicesPaths {
-  arduinoPath: String | undefined;
-  LARITPath: String | undefined;
+  arduinoPath: string | undefined;
+  LARITPath: string | undefined;
+}
+enum Devices {
+  arduino = "arduino",
+  LARIT = "LARIT",
 }
 
-const connectDevicesPaths = async (): Promise<DevicesPaths> => {
-  const portsAvailable: SerialPort[] = await serialPort.list();
-  const _arduinoPath = portsAvailable.find(
-    (port) => port.pnpId === ARDUINO_PNP_ID
-  )?.pnpId;
-  const _LARITPath = portsAvailable.find(
-    (port) => port.pnpId === LARIT_PNP_ID
-  )?.pnpId;
+const searchDevicePath = async (
+  device: Devices
+): Promise<SerialPortData["path"] | undefined> => {
+  const ARDUINO_PNP_ID =
+    "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
+  const LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
 
-  return { arduinoPath: _arduinoPath, LARITPath: _LARITPath };
+  const portsAvailable = await SerialPort.list();
+  if (device === Devices.arduino)
+    return portsAvailable.find((port) => port.pnpId === ARDUINO_PNP_ID)?.path;
+  if (device === Devices.LARIT)
+    return portsAvailable.find((port) => port.pnpId === LARIT_PNP_ID)?.path;
+};
+
+const checkConnectionStatus = async (): Promise<ConnectionStatus> => {
+  const arduinoPath = await searchDevicePath(Devices.arduino);
+  const LARITPath = await searchDevicePath(Devices.LARIT);
+
+  if (arduinoPath === undefined && LARITPath === undefined)
+    return ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED;
+  if (arduinoPath === undefined)
+    return ConnectionStatus.ARDUINO_IS_NOT_CONNECTED;
+  if (LARITPath === undefined) return ConnectionStatus.LARIT_IS_NOT_CONNECTED;
+  else return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
+};
+
+const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
+  const _path = await searchDevicePath(device);
+  console.log(`Connected to ${device} at port`, _path);
+  return new SerialPort({
+    path: _path !== undefined ? _path : "",
+    baudRate: device === Devices.arduino ? 115200 : 9600,
+  });
+};
+
+const startTest = (arduino: SerialPort, testSetings: string) => {
+  // arduino.write('Send Data from GUI - ' + message);
+  const settings: String[] = testSetings.split(",");
+
+  arduino.write(`<${settings[0]}> \n`);
+  arduino.write(`<${settings[1]}> \n`);
+  arduino.write(`<${settings[2] ? 1 : 2}> \n`);
+  arduino.write(`<${(537.7 / 3) * 5}>`);
+
+  console.log("Send Data from GUI - " + settings);
+
+  // startTest = true;
+  // setInterval( () => {
+  // },1000)
 };
 
 const toBytes = (string: String) => {

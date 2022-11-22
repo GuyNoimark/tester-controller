@@ -40,8 +40,9 @@ var electron_1 = require("electron");
 var path = require("path");
 var ConnectionState_1 = require("./Models/ConnectionState");
 var isDev = require("electron-is-dev");
-var SerialPort = require("serialport");
-var serialPort = SerialPort.SerialPort;
+// const SerialPort = require("serialport");
+// const serialPort = SerialPort.SerialPort;
+var serialport_1 = require("serialport");
 function createWindow() {
     var _this = this;
     // Create the browser window.
@@ -60,25 +61,55 @@ function createWindow() {
     if (isDev) {
         mainWindow.webContents.openDevTools();
     }
-    var startTest = false;
+    // let startTest: boolean = false;
     var iterationsPreformed = 0;
     var realForceCounter = 0;
-    electron_1.ipcMain.handle("getSerialPorts", function () { return __awaiter(_this, void 0, void 0, function () {
-        var paths;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, connectDevicesPaths()];
+    checkConnectionStatus().then(function (res) { return __awaiter(_this, void 0, void 0, function () {
+        var _a, _b, _c, arduino_1, LAIRT;
+        var _this = this;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    //Send connection status to the renderer;
+                    _b = (_a = electron_1.ipcMain).handle;
+                    _c = ["getSerialPorts"];
+                    return [4 /*yield*/, checkConnectionStatus];
                 case 1:
-                    paths = _a.sent();
-                    if (paths.arduinoPath === undefined && paths.LARITPath === undefined)
-                        return [2 /*return*/, ConnectionState_1.ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED];
-                    if (paths.arduinoPath === undefined)
-                        return [2 /*return*/, ConnectionState_1.ConnectionStatus.ARDUINO_IS_NOT_CONNECTED];
-                    if (paths.LARITPath === undefined)
-                        return [2 /*return*/, ConnectionState_1.ConnectionStatus.LARIT_IS_NOT_CONNECTED];
-                    else
-                        return [2 /*return*/, ConnectionState_1.ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED];
-                    return [2 /*return*/];
+                    //Send connection status to the renderer;
+                    _b.apply(_a, _c.concat([_d.sent()]));
+                    if (!(res === ConnectionState_1.ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED)) return [3 /*break*/, 4];
+                    return [4 /*yield*/, getSerialPortDevice(Devices.arduino)];
+                case 2:
+                    arduino_1 = _d.sent();
+                    return [4 /*yield*/, getSerialPortDevice(Devices.LARIT)];
+                case 3:
+                    LAIRT = _d.sent();
+                    // Reads arduino serialPort in "flowing mode"
+                    arduino_1.on("data", function (data) {
+                        console.log("Data:", data.toString("utf8"));
+                    });
+                    //Start the test
+                    electron_1.ipcMain.on("arduinoWrite", function (event, message) { return __awaiter(_this, void 0, void 0, function () {
+                        var checkConnection;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, checkConnectionStatus()];
+                                case 1:
+                                    checkConnection = _a.sent();
+                                    // mainWindow.webContents.send("error", checkConnection);
+                                    // console.log(checkConnection);
+                                    checkConnection === ConnectionState_1.ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED
+                                        ? startTest(arduino_1, message)
+                                        : mainWindow.webContents.send("error", checkConnection);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    return [3 /*break*/, 5];
+                case 4:
+                    mainWindow.webContents.send("error", res);
+                    _d.label = 5;
+                case 5: return [2 /*return*/];
             }
         });
     }); });
@@ -113,22 +144,6 @@ function createWindow() {
     //       console.log("Connected to LARIT at port", LARITPath);
     //       arduino.on("readable", function () {
     //         console.log("Arduino Answer:", arduino.read().toString("utf8"));
-    //       });
-    //       ipcMain.on("arduinoWrite", (event, message: String) => {
-    //         // arduino.write('Send Data from GUI - ' + message);
-    //         const settings: String[] = message.split(",");
-    //         // const Iter: Float32Array = toBytes(settings[0]);
-    //         // const force: Float32Array = toBytes(settings[0]);
-    //         // const push: Float32Array = toBytes(settings[0]);
-    //         arduino.write(`<${settings[0]}> \n`);
-    //         arduino.write(`<${settings[1]}> \n`);
-    //         arduino.write(`<${settings[2] ? 1 : 2}> \n`);
-    //         arduino.write(`<${(537.7 / 3) * 5}>`);
-    //         // console.log('Send Data from GUI - ' + `<${settings[0]}> \n`);
-    //         console.log("Send Data from GUI - " + settings);
-    //         startTest = true;
-    //         // setInterval( () => {
-    //         // },1000)
     //       });
     //       ipcMain.on("arduinoRead", (event, message: String) => {
     //         // arduino.on('readable', function () {
@@ -188,22 +203,79 @@ function createWindow() {
     //     }
     //   });
 }
-var ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
-var LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
-var connectDevicesPaths = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var portsAvailable, _arduinoPath, _LARITPath;
+var Devices;
+(function (Devices) {
+    Devices["arduino"] = "arduino";
+    Devices["LARIT"] = "LARIT";
+})(Devices || (Devices = {}));
+var searchDevicePath = function (device) { return __awaiter(void 0, void 0, void 0, function () {
+    var ARDUINO_PNP_ID, LARIT_PNP_ID, portsAvailable;
     var _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
-            case 0: return [4 /*yield*/, serialPort.list()];
+            case 0:
+                ARDUINO_PNP_ID = "USB\\VID_2341&PID_0058\\5A885C835151363448202020FF182F0F";
+                LARIT_PNP_ID = "USB\\VID_0483&PID_5740\\207E36733530";
+                return [4 /*yield*/, serialport_1.SerialPort.list()];
             case 1:
                 portsAvailable = _c.sent();
-                _arduinoPath = (_a = portsAvailable.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.pnpId;
-                _LARITPath = (_b = portsAvailable.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _b === void 0 ? void 0 : _b.pnpId;
-                return [2 /*return*/, { arduinoPath: _arduinoPath, LARITPath: _LARITPath }];
+                if (device === Devices.arduino)
+                    return [2 /*return*/, (_a = portsAvailable.find(function (port) { return port.pnpId === ARDUINO_PNP_ID; })) === null || _a === void 0 ? void 0 : _a.path];
+                if (device === Devices.LARIT)
+                    return [2 /*return*/, (_b = portsAvailable.find(function (port) { return port.pnpId === LARIT_PNP_ID; })) === null || _b === void 0 ? void 0 : _b.path];
+                return [2 /*return*/];
         }
     });
 }); };
+var checkConnectionStatus = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var arduinoPath, LARITPath;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, searchDevicePath(Devices.arduino)];
+            case 1:
+                arduinoPath = _a.sent();
+                return [4 /*yield*/, searchDevicePath(Devices.LARIT)];
+            case 2:
+                LARITPath = _a.sent();
+                if (arduinoPath === undefined && LARITPath === undefined)
+                    return [2 /*return*/, ConnectionState_1.ConnectionStatus.ARDUINO_AND_LARIT_ARE_NOT_CONNECTED];
+                if (arduinoPath === undefined)
+                    return [2 /*return*/, ConnectionState_1.ConnectionStatus.ARDUINO_IS_NOT_CONNECTED];
+                if (LARITPath === undefined)
+                    return [2 /*return*/, ConnectionState_1.ConnectionStatus.LARIT_IS_NOT_CONNECTED];
+                else
+                    return [2 /*return*/, ConnectionState_1.ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED];
+                return [2 /*return*/];
+        }
+    });
+}); };
+var getSerialPortDevice = function (device) { return __awaiter(void 0, void 0, void 0, function () {
+    var _path;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, searchDevicePath(device)];
+            case 1:
+                _path = _a.sent();
+                console.log("Connected to ".concat(device, " at port"), _path);
+                return [2 /*return*/, new serialport_1.SerialPort({
+                        path: _path !== undefined ? _path : "",
+                        baudRate: device === Devices.arduino ? 115200 : 9600
+                    })];
+        }
+    });
+}); };
+var startTest = function (arduino, testSetings) {
+    // arduino.write('Send Data from GUI - ' + message);
+    var settings = testSetings.split(",");
+    arduino.write("<".concat(settings[0], "> \n"));
+    arduino.write("<".concat(settings[1], "> \n"));
+    arduino.write("<".concat(settings[2] ? 1 : 2, "> \n"));
+    arduino.write("<".concat((537.7 / 3) * 5, ">"));
+    console.log("Send Data from GUI - " + settings);
+    // startTest = true;
+    // setInterval( () => {
+    // },1000)
+};
 var toBytes = function (string) {
     var buffer = Buffer.from(string, "utf8");
     var result = Array(buffer.length);
