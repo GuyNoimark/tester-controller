@@ -28,10 +28,12 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
-  // let startTest: boolean = false;
+  let startTest: boolean = false;
   let iterationsPreformed = 0;
   let realForceCounter: number = 0;
+  let lastTime = 0;
 
+  // Check connection
   checkConnectionStatus().then(async (res) => {
     //Send connection status to the renderer;
     ipcMain.handle("getSerialPorts", await checkConnectionStatus);
@@ -43,40 +45,45 @@ function createWindow() {
       // Reads arduino serialPort in "flowing mode"
       arduino.on("data", function (data: Buffer) {
         console.log("Data:", data.toString("utf-8"));
+        // if (data.toString("utf-8"))
       });
 
       //Start the test
       ipcMain.on("arduinoWrite", async (event, message: string) => {
         const checkConnection = await checkConnectionStatus();
-        checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED
-          ? startTest(arduino, message)
-          : mainWindow.webContents.send("error", checkConnection);
+        if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+          startArduinoTest(arduino, message);
+          console.log("Starts Test in 2 seconds");
+
+          // Waits for 2 seconds
+          const interval = setInterval(function () {
+            clearInterval(interval);
+            startTest = true;
+          }, 1000);
+        } else {
+          mainWindow.webContents.send("error", checkConnection);
+        }
       });
 
+      // Asks for a sensor sample
       setInterval(() => {
         LARIT.write("?", function (err: any) {
           if (err) return console.log("LARIT - Error on write: ", err.message);
         });
-      }, 1);
+      }, 0.5);
 
+      // Saves the return sample
       LARIT.on("data", function (data: Buffer) {
         const formattedData: string = data.toString("utf8").slice(0, -3);
         let sensorValue = parseFloat(formattedData);
         // console.log("Data:", sensorValue);
-        // mainWindow.webContents.send("getSensorValue", sensorValue);
+        // console.log("Data:", startTest);
+        mainWindow.webContents.send("getSensorValue", sensorValue);
 
-        if (sensorValue !== 0) {
-          realForceCounter += 1;
-
-          if (realForceCounter < 2) sensorValue = 0.0;
-        } else {
-          realForceCounter = 0;
+        if (startTest) {
+          // console.log(sensorValue);
+          sendSensorValueToArduino(sensorValue, arduino);
         }
-
-        arduino.write(sensorValue.toString(), function (err: any) {
-          if (err)
-            return console.log("Arduino - Error on write: ", err.message);
-        });
       });
     } else {
       mainWindow.webContents.send("error", res);
@@ -209,7 +216,7 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
   });
 };
 
-const startTest = (arduino: SerialPort, testSetings: string) => {
+const startArduinoTest = (arduino: SerialPort, testSetings: string) => {
   // arduino.write('Send Data from GUI - ' + message);
   const settings: String[] = testSetings.split(",");
 
@@ -220,9 +227,24 @@ const startTest = (arduino: SerialPort, testSetings: string) => {
 
   console.log("Send Data from GUI - " + settings);
 
-  // startTest = true;
-  // setInterval( () => {
-  // },1000)
+  // const interval = setInterval(function () {
+  //   clearInterval(interval);
+  //   console.log("Waiting");
+  // }, 2000);
+};
+
+const sendSensorValueToArduino = (sensorValue: number, arduino: SerialPort) => {
+  // if (sensorValue !== 0) {
+  //   realForceCounter += 1;
+
+  //   if (realForceCounter < 2) sensorValue = 0.0;
+  // } else {
+  //   realForceCounter = 0;
+  // }
+
+  arduino.write(sensorValue.toString(), function (err: any) {
+    if (err) return console.log("Arduino - Error on write: ", err.message);
+  });
 };
 
 // const getSensorData = (LARIT: SerialPort): number => {

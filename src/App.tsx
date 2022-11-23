@@ -125,20 +125,21 @@ function App() {
                     Read
                   </Button> */}
                   <Panel
-                    header="Session Progress"
+                    // header="Session Progress"
+                    header={<Progress.Line percent={45} status="active" />}
                     shaded
                     bordered
-                    style={{
-                      background:
-                        "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
-                    }}
+                    collapsible
+                    // style={{
+                    //   background:
+                    //     "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
+                    // }}
                   >
                     <Stack direction="column" spacing={20} alignItems="stretch">
-                      <Progress.Line percent={45} status="active" />
+                      {/* <Progress.Line percent={45} status="active" /> */}
                       <Timeline>
                         <Timeline.Item>16:27:41 Session Started</Timeline.Item>
                         <Timeline.Item>16:28:43 50% Done</Timeline.Item>
-
                         <Timeline.Item>
                           16:28:45 Test results available
                         </Timeline.Item>
