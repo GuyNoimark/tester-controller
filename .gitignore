@@ -18,6 +18,9 @@
 .env.test.local
 .env.production.local
 
+# Typescript
+/src/main.js
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
