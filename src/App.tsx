@@ -44,6 +44,7 @@ function App() {
   const onChange = () => setShow(!show);
 
   const [forceTarget, setForceTarget] = useState(1000);
+  const [progressValue, setProgressValue] = useState(0);
 
   const defaultPadding = 30;
 
@@ -56,6 +57,8 @@ function App() {
   // const [response, setResponse] = useState("");
 
   // const [reloadPorts, setReloadPorts] = useState(false);
+
+  const getProgress = async () => await window.electronAPI.getSerialPorts();
 
   useEffect(() => {
     const getResponse = async () => await window.electronAPI.getSerialPorts();
@@ -74,6 +77,9 @@ function App() {
         }),
       500
     );
+    const removeEventListenerGetProgress = window.electronAPI.getProgress(
+      (event: any, value: number) => setProgressValue(value)
+    );
     const removeEventListener = window.electronAPI.getErrors(
       (event: any, error: string) => {
         setErrorMessage(error);
@@ -82,6 +88,7 @@ function App() {
     );
     return () => {
       removeEventListener();
+      removeEventListenerGetProgress();
     };
   }, [getPorts]);
 
@@ -127,7 +134,9 @@ function App() {
                   </Button> */}
                   <Panel
                     // header="Session Progress"
-                    header={<Progress.Line percent={45} status="active" />}
+                    header={
+                      <Progress.Line percent={progressValue} status="active" />
+                    }
                     shaded
                     bordered
                     collapsible

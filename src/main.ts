@@ -25,7 +25,7 @@ function createWindow() {
   }
 
   let startTest: boolean = false;
-  let iterationsPreformed = 0;
+  let iterationsPreformed: number = 0;
   let lastTime = 0;
 
   // Check connection
@@ -40,6 +40,11 @@ function createWindow() {
       // Reads arduino serialPort in "flowing mode"
       arduino.on("data", function (data: Buffer) {
         console.log("Data:", data.toString("utf-8"));
+        if (data.toString("utf-8") === "i") {
+          iterationsPreformed++;
+          console.log(iterationsPreformed);
+          mainWindow.webContents.send("setProgress", iterationsPreformed);
+        }
         // if (data.toString("utf-8"))
       });
 
@@ -65,7 +70,7 @@ function createWindow() {
         LARIT.write("?", function (err: any) {
           if (err) return console.log("LARIT - Error on write: ", err.message);
         });
-      }, 0.1);
+      }, 0.5);
 
       // Saves the return sample
       LARIT.on("data", function (data: Buffer) {
@@ -76,7 +81,6 @@ function createWindow() {
         // mainWindow.webContents.send("getSensorValue", sensorValue);
 
         if (startTest) {
-          // console.log(sensorValue);
           sendSensorValueToArduino(sensorValue, arduino);
         }
       });
@@ -167,9 +171,13 @@ const sendSensorValueToArduino = (sensorValue: number, arduino: SerialPort) => {
     realForceCounter += 1;
 
     if (realForceCounter < 2) sensorValue = 0.0;
+  } else if (sensorValue === 0) {
+    sensorValue = 0.0;
   } else {
     realForceCounter = 0;
   }
+
+  // console.log(sensorValue);
 
   arduino.write(sensorValue.toString(), function (err: any) {
     if (err) return console.log("Arduino - Error on write: ", err.message);

@@ -16,6 +16,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.removeListener('getSensorValue', sensorCallback);
         };
     },
+    getProgress: (progressCallback) => {
+        ipcRenderer.on('setProgress', progressCallback);
+        return () => {
+            ipcRenderer.removeListener('setProgress', progressCallback);
+        };
+    },
     // deviceNotFound: (device) => {
     //     ipcRenderer.on('deviceNotFound', device);
     //     return () => {
