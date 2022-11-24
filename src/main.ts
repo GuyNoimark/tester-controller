@@ -26,7 +26,6 @@ function createWindow() {
 
   let startTest: boolean = false;
   let iterationsPreformed = 0;
-  let realForceCounter: number = 0;
   let lastTime = 0;
 
   // Check connection
@@ -49,13 +48,13 @@ function createWindow() {
         const checkConnection = await checkConnectionStatus();
         if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
           startArduinoTest(arduino, message);
-          console.log("Starts Test in 2 seconds");
+          // console.log("Starts Test in 2 seconds");
 
-          // Waits for 2 seconds
+          // Waits for 500 milliseconds
           const interval = setInterval(function () {
             clearInterval(interval);
             startTest = true;
-          }, 1000);
+          }, 500);
         } else {
           mainWindow.webContents.send("error", checkConnection);
         }
@@ -66,7 +65,7 @@ function createWindow() {
         LARIT.write("?", function (err: any) {
           if (err) return console.log("LARIT - Error on write: ", err.message);
         });
-      }, 0.5);
+      }, 0.1);
 
       // Saves the return sample
       LARIT.on("data", function (data: Buffer) {
@@ -74,7 +73,7 @@ function createWindow() {
         let sensorValue = parseFloat(formattedData);
         // console.log("Data:", sensorValue);
         // console.log("Data:", startTest);
-        mainWindow.webContents.send("getSensorValue", sensorValue);
+        // mainWindow.webContents.send("getSensorValue", sensorValue);
 
         if (startTest) {
           // console.log(sensorValue);
@@ -161,14 +160,16 @@ const startArduinoTest = (arduino: SerialPort, testSetings: string) => {
   console.log("Send Data from GUI - " + settings);
 };
 
-const sendSensorValueToArduino = (sensorValue: number, arduino: SerialPort) => {
-  // if (sensorValue !== 0) {
-  //   realForceCounter += 1;
+let realForceCounter: number = 0;
 
-  //   if (realForceCounter < 2) sensorValue = 0.0;
-  // } else {
-  //   realForceCounter = 0;
-  // }
+const sendSensorValueToArduino = (sensorValue: number, arduino: SerialPort) => {
+  if (sensorValue !== 0) {
+    realForceCounter += 1;
+
+    if (realForceCounter < 2) sensorValue = 0.0;
+  } else {
+    realForceCounter = 0;
+  }
 
   arduino.write(sensorValue.toString(), function (err: any) {
     if (err) return console.log("Arduino - Error on write: ", err.message);

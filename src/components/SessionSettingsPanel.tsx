@@ -42,7 +42,8 @@ import { SessionSettingsModel } from "../Models/Models";
 // });
 
 const SessionSettingsPanel = (props: {
-  onClick(data: SessionSettingsModel): void;
+  onClickStart(data: SessionSettingsModel): void;
+  onClickStop(): void;
 }) => {
   const [formData, setData] = useState<SessionSettingsModel>({
     iterations: 0,
@@ -177,12 +178,24 @@ const SessionSettingsPanel = (props: {
                 handleOpen();
               } else {
                 console.log("Start Test");
-                props.onClick(formData);
+                props.onClickStart(formData);
               }
             }}
             block
           >
             Start Test Session
+          </Button>
+          <Button
+            appearance="primary"
+            style={{
+              background: "red",
+            }}
+            onClick={() => {
+              props.onClickStop();
+            }}
+            block
+          >
+            STOP
           </Button>
         </Stack>
       </Panel>

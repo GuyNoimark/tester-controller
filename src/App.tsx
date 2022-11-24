@@ -110,7 +110,8 @@ function App() {
                 <Stack direction="column" spacing={30} alignItems="stretch">
                   <SessionInput
                     // onPropertyChange={(formData) => }
-                    onClick={(formData) => {
+                    onClickStop={() => {}}
+                    onClickStart={(formData) => {
                       setForceTarget(formData.force);
                       window.electronAPI.writeArduino(
                         `${formData.iterations},${formData.force},${formData.push}`
@@ -130,6 +131,7 @@ function App() {
                     shaded
                     bordered
                     collapsible
+                    // className="overlay"
                     // style={{
                     //   background:
                     //     "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
