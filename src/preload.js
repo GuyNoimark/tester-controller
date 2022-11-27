@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.removeListener('setProgress', progressCallback);
         };
     },
+    stopTest: () => ipcRenderer.send('stopTest'),
+
     // deviceNotFound: (device) => {
     //     ipcRenderer.on('deviceNotFound', device);
     //     return () => {

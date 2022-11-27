@@ -44,6 +44,7 @@ function App() {
   const onChange = () => setShow(!show);
 
   const [forceTarget, setForceTarget] = useState(1000);
+  const [iterations, setIterations] = useState(0);
   const [progressValue, setProgressValue] = useState(0);
 
   const defaultPadding = 30;
@@ -77,9 +78,7 @@ function App() {
         }),
       500
     );
-    const removeEventListenerGetProgress = window.electronAPI.getProgress(
-      (event: any, value: number) => setProgressValue(value)
-    );
+
     const removeEventListener = window.electronAPI.getErrors(
       (event: any, error: string) => {
         setErrorMessage(error);
@@ -88,9 +87,18 @@ function App() {
     );
     return () => {
       removeEventListener();
-      removeEventListenerGetProgress();
     };
   }, [getPorts]);
+
+  useEffect(() => {
+    const removeEventListenerGetProgress = window.electronAPI.getProgress(
+      (event: any, value: number) =>
+        setProgressValue((value / iterations) * 100)
+    );
+    return () => {
+      removeEventListenerGetProgress();
+    };
+  });
 
   return (
     <CustomProvider theme={theme}>
@@ -117,9 +125,12 @@ function App() {
                 <Stack direction="column" spacing={30} alignItems="stretch">
                   <SessionInput
                     // onPropertyChange={(formData) => }
-                    onClickStop={() => {}}
+                    onClickStop={() => {
+                      window.electronAPI.stopTest();
+                    }}
                     onClickStart={(formData) => {
                       setForceTarget(formData.force);
+                      setIterations(formData.iterations);
                       window.electronAPI.writeArduino(
                         `${formData.iterations},${formData.force},${formData.push}`
                       );

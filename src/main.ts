@@ -27,66 +27,71 @@ function createWindow() {
   let startTest: boolean = false;
   let iterationsPreformed: number = 0;
   let lastTime = 0;
+  const samples: number[] = [];
 
   // Check connection
   checkConnectionStatus().then(async (res) => {
     //Send connection status to the renderer;
-    ipcMain.handle("getSerialPorts", await checkConnectionStatus);
+    ipcMain.handle("getSerialPorts", checkConnectionStatus);
 
-    if (res === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-      const arduino = await getSerialPortDevice(Devices.arduino);
-      const LARIT = await getSerialPortDevice(Devices.LARIT);
+    const arduino = await getSerialPortDevice(Devices.arduino);
+    const LARIT = await getSerialPortDevice(Devices.LARIT);
 
-      // Reads arduino serialPort in "flowing mode"
-      arduino.on("data", function (data: Buffer) {
-        console.log("Data:", data.toString("utf-8"));
-        if (data.toString("utf-8") === "i") {
-          iterationsPreformed++;
-          console.log(iterationsPreformed);
-          mainWindow.webContents.send("setProgress", iterationsPreformed);
-        }
-        // if (data.toString("utf-8"))
-      });
+    // Reads arduino serialPort in "flowing mode"
+    arduino.on("data", function (data: Buffer) {
+      console.log("Data:", data.toString("utf-8"));
+      if (data.toString("utf-8") === "i") {
+        iterationsPreformed++;
+        console.log(iterationsPreformed);
+        mainWindow.webContents.send("setProgress", iterationsPreformed);
+      }
+      // if (data.toString("utf-8"))
+    });
 
-      //Start the test
-      ipcMain.on("arduinoWrite", async (event, message: string) => {
-        const checkConnection = await checkConnectionStatus();
-        if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-          startArduinoTest(arduino, message);
-          // console.log("Starts Test in 2 seconds");
+    //Start the test
+    ipcMain.on("arduinoWrite", async (event, message: string) => {
+      const checkConnection = await checkConnectionStatus();
+      if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+        startArduinoTest(arduino, message);
+        // console.log("Starts Test in 2 seconds");
 
-          // Waits for 500 milliseconds
-          const interval = setInterval(function () {
-            clearInterval(interval);
-            startTest = true;
-          }, 500);
-        } else {
-          mainWindow.webContents.send("error", checkConnection);
-        }
-      });
+        // Waits for 500 milliseconds
+        const interval = setInterval(function () {
+          clearInterval(interval);
+          startTest = true;
+        }, 500);
+      } else {
+        mainWindow.webContents.send("error", checkConnection);
+      }
+    });
 
-      // Asks for a sensor sample
-      setInterval(() => {
-        LARIT.write("?", function (err: any) {
-          if (err) return console.log("LARIT - Error on write: ", err.message);
-        });
-      }, 0.5);
-
-      // Saves the return sample
-      LARIT.on("data", function (data: Buffer) {
-        const formattedData: string = data.toString("utf8").slice(0, -3);
-        let sensorValue = parseFloat(formattedData);
-        // console.log("Data:", sensorValue);
-        // console.log("Data:", startTest);
-        // mainWindow.webContents.send("getSensorValue", sensorValue);
-
-        if (startTest) {
-          sendSensorValueToArduino(sensorValue, arduino);
+    // Asks for a sensor sample
+    setInterval(() => {
+      LARIT.write("?", function (err: any) {
+        if (err) {
+          mainWindow.webContents.send("error", err.message);
+          return console.log("LARIT - Error on write: ", err.message);
         }
       });
-    } else {
-      mainWindow.webContents.send("error", res);
-    }
+    }, 0.5);
+
+    ipcMain.on("stopTest", () => (startTest = false));
+
+    // Saves the return sample
+    LARIT.on("data", function (data: Buffer) {
+      const formattedData: string = data.toString("utf8").slice(0, -3);
+      let sensorValue = parseFloat(formattedData);
+      samples.push(sensorValue);
+      // console.log("Data:", sensorValue);
+      console.log("Data:", startTest);
+
+      if (startTest) {
+        sendSensorValueToArduino(sensorValue, arduino);
+        if (samples.length % 100 === 0)
+          //Sends 1 sample ever 50 millis
+          mainWindow.webContents.send("getSensorValue", sensorValue);
+      }
+    });
   });
 }
 

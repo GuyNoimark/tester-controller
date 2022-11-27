@@ -58,6 +58,14 @@ const SessionSettingsPanel = (props: {
 
   const [enableAdvanced, setEnableAdvanced] = useState(false);
 
+  enum ButtonState {
+    START_TEST,
+    STOP_TEST,
+    RESTART,
+  }
+
+  const [buttonState, setButtonState] = useState(ButtonState.START_TEST);
+
   const maxForceAllowed: number = 500;
 
   const validate = (formData: SessionSettingsModel): boolean | String => {
@@ -167,35 +175,37 @@ const SessionSettingsPanel = (props: {
           /> */}
           <Button
             appearance="primary"
-            style={{
-              background: "linear-gradient(87deg, #11cdef 0, #1171ef 100%)",
-            }}
-            onClick={() => {
-              const validationResponse = validate(formData);
+            // color={buttonState === ButtonState.START_TEST ? {'Blue'} : {'Red'}}
 
-              if (typeof validationResponse === "string") {
-                setValidationErrorMessage(validationResponse.toString());
-                handleOpen();
+            style={
+              buttonState === ButtonState.START_TEST
+                ? { background: "#1787e8" }
+                : { background: "#eb3626" }
+            }
+            //   "linear-gradient(87deg, #11cdef 0, #1171ef 100%)",
+            // }}
+            onClick={() => {
+              if (buttonState === ButtonState.START_TEST) {
+                const validationResponse = validate(formData);
+                if (typeof validationResponse === "string") {
+                  setValidationErrorMessage(validationResponse.toString());
+                  handleOpen();
+                } else {
+                  console.log("Start Test");
+                  setButtonState(ButtonState.STOP_TEST);
+                  props.onClickStart(formData);
+                }
               } else {
-                console.log("Start Test");
-                props.onClickStart(formData);
+                console.log("STOP!!!");
+                props.onClickStop();
+                setButtonState(ButtonState.START_TEST);
               }
             }}
             block
           >
-            Start Test Session
-          </Button>
-          <Button
-            appearance="primary"
-            style={{
-              background: "red",
-            }}
-            onClick={() => {
-              props.onClickStop();
-            }}
-            block
-          >
-            STOP
+            {buttonState === ButtonState.START_TEST
+              ? "Start Test Session"
+              : "STOP"}
           </Button>
         </Stack>
       </Panel>
