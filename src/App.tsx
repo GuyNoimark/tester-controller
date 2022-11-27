@@ -29,9 +29,10 @@ import SessionInput from "./Components/SessionSettingsPanel";
 import ModalAlert from "./Components/ModalAlert";
 import socketIOClient from "socket.io-client";
 import ChartPanel from "./Components/ChartPanel";
-import { ModalState } from "./Models/Models";
+import { ModalState } from "./Models/types";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { ConnectionStatus } from "./Models/ConnectionState";
+import { Hash, Aperture } from "react-feather";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -58,6 +59,14 @@ function App() {
   // const [response, setResponse] = useState("");
 
   // const [reloadPorts, setReloadPorts] = useState(false);
+
+  enum AppState {
+    CONFIGURE,
+    IN_TEST,
+    STOP,
+    DONE,
+    ERROR,
+  }
 
   const getProgress = async () => await window.electronAPI.getSerialPorts();
 
@@ -128,6 +137,7 @@ function App() {
                   spacing={padding}
                   alignItems="stretch"
                 >
+                  {/* <div style={{ pointerEvents: "none", opacity: "0.4" }}> */}
                   <SessionInput
                     // onPropertyChange={(formData) => }
                     onClickStop={() => {
@@ -138,11 +148,10 @@ function App() {
                     onClickStart={(formData) => {
                       setForceTarget(formData.force);
                       setIterations(formData.iterations);
-                      window.electronAPI.writeArduino(
-                        `${formData.iterations},${formData.force},${formData.push}`
-                      );
+                      window.electronAPI.writeArduino(formData);
                     }}
                   ></SessionInput>
+                  {/* </div> */}
                   {/* <Button
                     onClick={() => {
                       window.electronAPI.readArduino();
@@ -193,24 +202,24 @@ function App() {
                   direction="column"
                   alignItems="stretch"
                 >
+                  <Row>
+                    <ChartPanel forceTarget={forceTarget} />
+                  </Row>
                   <Row gutter={padding}>
-                    <Col md={8}>
+                    <Col md={24}>
                       <Panel
                         title="PROGRESS"
                         expanded={true}
                         shaded
                         bordered
-                      ></Panel>
+                        style={{
+                          background:
+                            "linear-gradient(87deg, #2dce89 0, #2dcecc 100%)",
+                        }}
+                      >
+                        <Aperture color="white" />
+                      </Panel>
                     </Col>
-                    <Col md={8}>
-                      <Panel title="PROGRESS"></Panel>
-                    </Col>
-                    <Col md={8}>
-                      <Panel title="PROGRESS"></Panel>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <ChartPanel forceTarget={forceTarget} />
                   </Row>
                 </Stack>
               </Col>

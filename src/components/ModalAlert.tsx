@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Message, Modal } from "rsuite";
-import { ModalState } from "../Models/Models";
+import { ModalState } from "../Models/types";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 
 const ModalAlert = (props: { message: string; state: ModalState }) => {

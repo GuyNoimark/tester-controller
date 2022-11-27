@@ -3,6 +3,7 @@ import * as path from "path";
 import { ConnectionStatus } from "./Models/ConnectionState";
 const isDev = require("electron-is-dev");
 import { SerialPort } from "serialport";
+import { SessionSettingsModel } from "./Models/types";
 
 function createWindow() {
   // Create the browser window.
@@ -49,10 +50,10 @@ function createWindow() {
     });
 
     //Start the test
-    ipcMain.on("arduinoWrite", async (event, message: string) => {
+    ipcMain.on("arduinoWrite", async (event, data: SessionSettingsModel) => {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-        startArduinoTest(arduino, message);
+        startArduinoTest(arduino, data);
         // console.log("Starts Test in 2 seconds");
 
         // Waits for 500 milliseconds
@@ -160,16 +161,15 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
 //     });
 // };
 
-const startArduinoTest = (arduino: SerialPort, testSetings: string) => {
+const startArduinoTest = (arduino: SerialPort, data: SessionSettingsModel) => {
   // arduino.write('Send Data from GUI - ' + message);
-  const settings: String[] = testSetings.split(",");
 
-  arduino.write(`<${settings[0]}> \n`);
-  arduino.write(`<${settings[1]}> \n`);
-  arduino.write(`<${settings[2] ? 1 : 2}> \n`);
-  arduino.write(`<${(537.7 / 3) * 5}>`);
+  arduino.write(`<${data.iterations}> \n`);
+  arduino.write(`<${data.force}> \n`);
+  arduino.write(`<${data.push ? 1 : 0}> \n`);
+  arduino.write(`<${(537.7 / 3) * data.stroke}>`);
 
-  console.log("Send Data from GUI - " + settings);
+  console.log("Send Data from GUI - ", data);
 };
 
 let realForceCounter: number = 0;
@@ -200,6 +200,12 @@ const toBytes = (string: String) => {
   }
   return result;
 };
+
+// TODO
+// const raiseErrorOnRenderer = (err: any, device: Devices) => {
+//   console.log("Arduino - Error on write: ", err.message);
+//   mainWindow.webContents.send("error", err.message);
+// };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

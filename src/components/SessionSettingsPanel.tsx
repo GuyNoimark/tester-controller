@@ -19,7 +19,8 @@ import SortUpIcon from "@rsuite/icons/SortUp";
 import SortDownIcon from "@rsuite/icons/SortDown";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { isInteger } from "lodash";
-import { SessionSettingsModel } from "../Models/Models";
+import { SessionSettingsModel } from "../Models/types";
+import { Hash, Aperture } from "react-feather";
 
 // const Field = React.forwardRef((props, ref) => {
 //   // const { name, message, label, accepter, error, ...rest } = props;
@@ -49,7 +50,22 @@ const SessionSettingsPanel = (props: {
     iterations: 0,
     force: 0,
     push: true,
+    stroke: 5,
   });
+
+  const setIterations = (iterations: number) => {
+    setData((existingData) => ({ ...existingData, iterations: iterations }));
+  };
+  const setForce = (force: number) => {
+    setData((existingData) => ({ ...existingData, force: force }));
+  };
+  const setPush = (push: boolean) => {
+    setData((existingData) => ({ ...existingData, push: push }));
+  };
+  const setStroke = (stroke: number) => {
+    setData((existingData) => ({ ...existingData, stroke: stroke }));
+  };
+
   const [validationErrorMessage, setValidationErrorMessage] =
     useState<string>("");
   const [open, setOpen] = useState(false);
@@ -101,26 +117,14 @@ const SessionSettingsPanel = (props: {
             step={1}
             // defaultValue={3}
             prefix="Iterations"
-            onChange={(value) =>
-              setData({
-                iterations: +value,
-                force: formData.force,
-                push: formData.push,
-              })
-            }
+            onChange={(iterations) => setIterations(+iterations)}
           />
           <InputNumber
             min={1}
             step={1}
             // defaultValue={5}
             prefix="Neuton Force"
-            onChange={(value) =>
-              setData({
-                iterations: formData.iterations,
-                force: +value,
-                push: formData.push,
-              })
-            }
+            onChange={(force) => setForce(+force)}
           />
           {/* <Toggle
           size="lg"
@@ -132,13 +136,7 @@ const SessionSettingsPanel = (props: {
             inline
             appearance="picker"
             defaultValue="Push"
-            onChange={(value) =>
-              setData({
-                iterations: formData.iterations,
-                force: formData.force,
-                push: value === "Push" ? true : false,
-              })
-            }
+            onChange={(value) => setPush(value === "Push" ? true : false)}
           >
             <Radio value="Push">
               <SortDownIcon /> Push
@@ -158,15 +156,21 @@ const SessionSettingsPanel = (props: {
               />
             }{" "}
           </Divider>
-          <InputNumber disabled={!enableAdvanced} defaultValue={10} />
-          <Slider
+          <InputNumber
+            disabled={!enableAdvanced}
+            defaultValue={5}
+            prefix={"Stroke"}
+            postfix={"mm"}
+            onChange={(value) => setStroke(+value)}
+          />
+          {/* <Slider
             disabled={!enableAdvanced}
             defaultValue={50}
             min={0}
             // step={10}
             max={100}
             progress
-          />
+          /> */}
           {/* <Toggle
             size="md"
             checkedChildren="Dark Mode"
