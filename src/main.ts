@@ -40,10 +40,10 @@ function createWindow() {
     // Reads arduino serialPort in "flowing mode"
     arduino.on("data", function (data: Buffer) {
       console.log("Data:", data.toString("utf-8"));
-      if (data.toString("utf-8") === "i") {
-        iterationsPreformed++;
-        console.log(iterationsPreformed);
+      if (data.toString("utf-8").includes("i")) {
+        iterationsPreformed += 1;
         mainWindow.webContents.send("setProgress", iterationsPreformed);
+        console.log(iterationsPreformed);
       }
       // if (data.toString("utf-8"))
     });
@@ -75,7 +75,10 @@ function createWindow() {
       });
     }, 0.5);
 
-    ipcMain.on("stopTest", () => (startTest = false));
+    ipcMain.on("stopTest", () => {
+      startTest = false;
+      iterationsPreformed = 0;
+    });
 
     // Saves the return sample
     LARIT.on("data", function (data: Buffer) {
@@ -83,7 +86,7 @@ function createWindow() {
       let sensorValue = parseFloat(formattedData);
       samples.push(sensorValue);
       // console.log("Data:", sensorValue);
-      console.log("Data:", startTest);
+      // console.log("Data:", startTest);
 
       if (startTest) {
         sendSensorValueToArduino(sensorValue, arduino);

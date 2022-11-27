@@ -100,6 +100,7 @@ function App() {
     };
   });
 
+  const padding = 30;
   return (
     <CustomProvider theme={theme}>
       <div
@@ -120,13 +121,19 @@ function App() {
         {/* <Divider></Divider> */}
         <div>
           <Grid fluid>
-            <Row gutter={30}>
+            <Row gutter={padding}>
               <Col md={8}>
-                <Stack direction="column" spacing={30} alignItems="stretch">
+                <Stack
+                  direction="column"
+                  spacing={padding}
+                  alignItems="stretch"
+                >
                   <SessionInput
                     // onPropertyChange={(formData) => }
                     onClickStop={() => {
                       window.electronAPI.stopTest();
+                      setForceTarget(1000);
+                      setProgressValue(0);
                     }}
                     onClickStart={(formData) => {
                       setForceTarget(formData.force);
@@ -157,7 +164,11 @@ function App() {
                     //     "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
                     // }}
                   >
-                    <Stack direction="column" spacing={20} alignItems="stretch">
+                    <Stack
+                      direction="column"
+                      spacing={padding}
+                      alignItems="stretch"
+                    >
                       {/* <Progress.Line percent={45} status="active" /> */}
                       <Timeline>
                         <Timeline.Item>16:27:41 Session Started</Timeline.Item>
@@ -177,9 +188,31 @@ function App() {
                 </Stack>
               </Col>
               <Col md={16}>
-                <Row>
-                  <ChartPanel forceTarget={forceTarget} />
-                </Row>
+                <Stack
+                  spacing={padding}
+                  direction="column"
+                  alignItems="stretch"
+                >
+                  <Row gutter={padding}>
+                    <Col md={8}>
+                      <Panel
+                        title="PROGRESS"
+                        expanded={true}
+                        shaded
+                        bordered
+                      ></Panel>
+                    </Col>
+                    <Col md={8}>
+                      <Panel title="PROGRESS"></Panel>
+                    </Col>
+                    <Col md={8}>
+                      <Panel title="PROGRESS"></Panel>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <ChartPanel forceTarget={forceTarget} />
+                  </Row>
+                </Stack>
               </Col>
             </Row>
           </Grid>
