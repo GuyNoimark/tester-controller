@@ -57,6 +57,8 @@ function createWindow() {
     });
   };
 
+  ipcMain.handle("getSerialPorts", checkConnectionStatus);
+
   // Check connection
   checkConnectionStatus().then(async (res) => {
     //Send connection status to the renderer;

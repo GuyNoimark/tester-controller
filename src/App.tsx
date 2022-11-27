@@ -33,6 +33,7 @@ import { ModalState } from "./Models/types";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { ConnectionStatus } from "./Models/ConnectionState";
 import { Hash, Aperture } from "react-feather";
+import DashboardPanel from "./Components/DashboardPanel";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -206,7 +207,10 @@ function App() {
                     <ChartPanel forceTarget={forceTarget} />
                   </Row>
                   <Row gutter={padding}>
-                    <Col md={24}>
+                    <Col md={12}>
+                      <DashboardPanel header="TEST">HI</DashboardPanel>
+                    </Col>
+                    <Col md={12}>
                       <Panel
                         title="PROGRESS"
                         expanded={true}
