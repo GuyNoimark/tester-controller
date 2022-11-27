@@ -158,6 +158,8 @@ const SessionSettingsPanel = (props: {
           </Divider>
           <InputNumber
             disabled={!enableAdvanced}
+            min={0}
+            step={1}
             defaultValue={5}
             prefix={"Stroke"}
             postfix={"mm"}

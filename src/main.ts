@@ -30,6 +30,33 @@ function createWindow() {
   let lastTime = 0;
   const samples: number[] = [];
 
+  const raiseErrorOnRenderer = (err: any, device?: Devices) => {
+    console.log(
+      "Error: ",
+      device !== undefined ? device : "",
+      " - ",
+      err.message
+    );
+    mainWindow.webContents.send("error", err.message);
+  };
+
+  const sendSensorValueToArduino = (
+    sensorValue: number,
+    arduino: SerialPort
+  ) => {
+    if (sensorValue !== 0) {
+      realForceCounter += 1;
+      if (realForceCounter < 2) sensorValue = 0.0;
+    } else if (sensorValue === 0) {
+      sensorValue = 0.0;
+    } else {
+      realForceCounter = 0;
+    }
+    arduino.write(sensorValue.toString(), function (err: any) {
+      if (err) raiseErrorOnRenderer(err.message, Devices.arduino);
+    });
+  };
+
   // Check connection
   checkConnectionStatus().then(async (res) => {
     //Send connection status to the renderer;
@@ -62,17 +89,14 @@ function createWindow() {
           startTest = true;
         }, 500);
       } else {
-        mainWindow.webContents.send("error", checkConnection);
+        raiseErrorOnRenderer(checkConnection);
       }
     });
 
     // Asks for a sensor sample
     setInterval(() => {
       LARIT.write("?", function (err: any) {
-        if (err) {
-          mainWindow.webContents.send("error", err.message);
-          return console.log("LARIT - Error on write: ", err.message);
-        }
+        if (err) raiseErrorOnRenderer(err.message, Devices.LARIT);
       });
     }, 0.5);
 
@@ -166,31 +190,13 @@ const startArduinoTest = (arduino: SerialPort, data: SessionSettingsModel) => {
 
   arduino.write(`<${data.iterations}> \n`);
   arduino.write(`<${data.force}> \n`);
-  arduino.write(`<${data.push ? 1 : 0}> \n`);
+  arduino.write(`<${data.push ? 1 : 2}> \n`);
   arduino.write(`<${(537.7 / 3) * data.stroke}>`);
 
   console.log("Send Data from GUI - ", data);
 };
 
 let realForceCounter: number = 0;
-
-const sendSensorValueToArduino = (sensorValue: number, arduino: SerialPort) => {
-  if (sensorValue !== 0) {
-    realForceCounter += 1;
-
-    if (realForceCounter < 2) sensorValue = 0.0;
-  } else if (sensorValue === 0) {
-    sensorValue = 0.0;
-  } else {
-    realForceCounter = 0;
-  }
-
-  // console.log(sensorValue);
-
-  arduino.write(sensorValue.toString(), function (err: any) {
-    if (err) return console.log("Arduino - Error on write: ", err.message);
-  });
-};
 
 const toBytes = (string: String) => {
   const buffer = Buffer.from(string, "utf8");
@@ -200,12 +206,6 @@ const toBytes = (string: String) => {
   }
   return result;
 };
-
-// TODO
-// const raiseErrorOnRenderer = (err: any, device: Devices) => {
-//   console.log("Arduino - Error on write: ", err.message);
-//   mainWindow.webContents.send("error", err.message);
-// };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
