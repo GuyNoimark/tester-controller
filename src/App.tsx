@@ -115,6 +115,7 @@ function App() {
           getSummary().then((response) => {
             setSummaryData(response);
             setOpenSummaryModal(true);
+            console.log(summaryData?.lineChartData.length);
           });
         }
       }

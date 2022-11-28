@@ -19,20 +19,25 @@ import SplitButton from "./SplitButton";
 const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
   // if (props.state === ModalState.Open) handleOpen();
   // if (props.state === ModalState.Closed) handleClose();
-  console.log(props.data);
+  console.log(props.data?.lineChartData);
 
   const date = new Date();
 
-  const lineChartData: number[] = Array.from({ length: 100 }, () =>
-    Math.floor(Math.random() * 20)
-  );
+  const _lineChartData: number[] = props.data?.lineChartData ?? [];
 
   const chartSeriesData: ApexAxisChartSeries = [
     // { name: "sensorValue", data: [0, 5, 1, 4] },
     {
-      data: lineChartData,
+      data: _lineChartData,
     },
   ];
+
+  const lowestValue = Math.min(..._lineChartData);
+  const maxValue = Math.max(..._lineChartData);
+
+  // console.log(maxValue);
+
+  const getIndex = (value: number): number => _lineChartData.indexOf(value);
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
@@ -49,8 +54,8 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
         //   const lowest = chartContext.getLowestValueInSeries(0);
         //   const highest = chartContext.getHighestValueInSeries(0);
         //   const getIndex = (value: number): number => chartSeriesData[0].data.indexOf(value);
-        //   // const lowestValue = Math.min(...chartSeriesData);
-        //   // const maxValue = Math.max(...lineChartData);
+        // const lowestValue = Math.min(...chartSeriesData);
+        // const maxValue = Math.max(...lineChartData);
         //   const lowestValueIndex = getIndex(lowestValue);
         //   const maxValueIndex = getIndex(maxValue);
         //   chartContext.addPointAnnotation({
@@ -121,8 +126,8 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
       ],
       points: [
         {
-          x: 50,
-          y: 10,
+          x: maxValue,
+          y: getIndex(maxValue),
           marker: {
             strokeColor: "#FF4560",
             // offsetX: 10,
@@ -138,8 +143,8 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
           },
         },
         {
-          x: 50,
-          y: 0,
+          x: lowestValue,
+          y: getIndex(lowestValue),
           marker: {
             strokeColor: "#775dd0",
             // offsetX: 10,
