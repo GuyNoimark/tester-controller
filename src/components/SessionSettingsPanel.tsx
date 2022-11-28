@@ -21,6 +21,7 @@ import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { isInteger } from "lodash";
 import { SessionSettingsModel } from "../Models/types";
 import { Hash, Aperture } from "react-feather";
+import DashboardPanel from "./DashboardPanel";
 
 // const Field = React.forwardRef((props, ref) => {
 //   // const { name, message, label, accepter, error, ...rest } = props;
@@ -110,7 +111,7 @@ const SessionSettingsPanel = (props: {
 
   return (
     <>
-      <Panel header={"Session Settings"} shaded bordered>
+      <DashboardPanel header={"Session Settings"}>
         <Stack direction="column" spacing={20} alignItems="stretch">
           <InputNumber
             min={0}
@@ -214,7 +215,7 @@ const SessionSettingsPanel = (props: {
               : "STOP"}
           </Button>
         </Stack>
-      </Panel>
+      </DashboardPanel>
 
       <Modal open={open} onClose={handleClose} size={"xs"}>
         <Modal.Header>

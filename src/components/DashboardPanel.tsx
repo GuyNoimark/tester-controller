@@ -2,15 +2,17 @@ import { useState } from "react";
 import { Button, Message, Modal, Panel } from "rsuite";
 
 const DashboardPanel = (props: {
-  header: string;
+  header?: string;
   style?: React.CSSProperties;
-  activated?: boolean;
-  children: any;
+  disabled?: boolean;
+  children?: any;
 }) => {
+  // props.activated = props.activated === undefined ? true : props.activated;
+
   return (
     <>
       <div
-        style={props.activated ? { pointerEvents: "none", opacity: "0.4" } : {}}
+        style={props.disabled ? { pointerEvents: "none", opacity: "0.4" } : {}}
       >
         <Panel
           header={props.header}

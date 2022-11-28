@@ -34,6 +34,7 @@ import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { ConnectionStatus } from "./Models/ConnectionState";
 import { Hash, Aperture } from "react-feather";
 import DashboardPanel from "./Components/DashboardPanel";
+import SummaryModal from "./Components/SummaryModal";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -229,8 +230,9 @@ function App() {
               </Col>
             </Row>
           </Grid>
+          <SummaryModal data={[]} state={ModalState.Open} />
           <Modal
-            open={open}
+            open={false}
             onClose={() => setOpen(false)}
             backdrop={"static"}
             role="alertdialog"

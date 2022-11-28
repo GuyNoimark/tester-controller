@@ -1,6 +1,7 @@
 import react, { useEffect, useState } from "react";
 import { Panel } from "rsuite";
 import Chart from "react-apexcharts";
+import DashboardPanel from "./DashboardPanel";
 
 const ChartPanel = (props: { forceTarget: number }) => {
   const [chartData, updateChartData] = useState([0, 1, 2]);
@@ -31,7 +32,7 @@ const ChartPanel = (props: { forceTarget: number }) => {
 
   return (
     <>
-      <Panel expanded={true} shaded bordered>
+      <DashboardPanel disabled={true}>
         <Chart
           options={{
             chart: {
@@ -89,7 +90,7 @@ const ChartPanel = (props: { forceTarget: number }) => {
           type="line"
           // width="500"
         />
-      </Panel>
+      </DashboardPanel>
     </>
   );
 };
