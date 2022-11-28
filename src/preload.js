@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         };
     },
     stopTest: () => ipcRenderer.send('stopTest'),
+    getSummary: (message) => ipcRenderer.invoke('getSummary', message),
+
 
     // deviceNotFound: (device) => {
     //     ipcRenderer.on('deviceNotFound', device);

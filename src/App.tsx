@@ -29,7 +29,7 @@ import SessionInput from "./Components/SessionSettingsPanel";
 import ModalAlert from "./Components/ModalAlert";
 import socketIOClient from "socket.io-client";
 import ChartPanel from "./Components/ChartPanel";
-import { ModalState } from "./Models/types";
+import { ModalState, SummaryPanelData } from "./Models/types";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import { ConnectionStatus } from "./Models/ConnectionState";
 import { Hash, Aperture } from "react-feather";
@@ -55,6 +55,9 @@ function App() {
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [getPorts, setGetPorts] = useState(false);
+
+  const [openSummaryModal, setOpenSummaryModal] = useState(false);
+  const [summaryData, setSummaryData] = useState<SummaryPanelData>();
   // ipcRenderer.send("searchSerialPort", "test");
 
   // const ENDPOINT = "http://127.0.0.1:4001";
@@ -103,8 +106,18 @@ function App() {
 
   useEffect(() => {
     const removeEventListenerGetProgress = window.electronAPI.getProgress(
-      (event: any, value: number) =>
-        setProgressValue((value / iterations) * 100)
+      (event: any, value: number) => {
+        setProgressValue((value / iterations) * 100);
+        if ((value / iterations) * 100 === 100) {
+          window.electronAPI.stopTest();
+          setForceTarget(1000);
+          const getSummary = async () => await window.electronAPI.getSummary();
+          getSummary().then((response) => {
+            setSummaryData(response);
+            setOpenSummaryModal(true);
+          });
+        }
+      }
     );
     return () => {
       removeEventListenerGetProgress();
@@ -230,9 +243,9 @@ function App() {
               </Col>
             </Row>
           </Grid>
-          <SummaryModal data={[]} state={ModalState.Open} />
+          <SummaryModal data={summaryData} open={openSummaryModal} />
           <Modal
-            open={false}
+            open={open}
             onClose={() => setOpen(false)}
             backdrop={"static"}
             role="alertdialog"

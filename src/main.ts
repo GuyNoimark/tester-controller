@@ -3,7 +3,7 @@ import * as path from "path";
 import { ConnectionStatus } from "./Models/ConnectionState";
 const isDev = require("electron-is-dev");
 import { SerialPort } from "serialport";
-import { SessionSettingsModel } from "./Models/types";
+import { SessionSettingsModel, SummaryPanelData } from "./Models/types";
 
 function createWindow() {
   // Create the browser window.
@@ -29,6 +29,7 @@ function createWindow() {
   let iterationsPreformed: number = 0;
   let lastTime = 0;
   const samples: number[] = [];
+  let settings: SessionSettingsModel;
 
   const raiseErrorOnRenderer = (err: any, device?: Devices) => {
     console.log(
@@ -57,7 +58,13 @@ function createWindow() {
     });
   };
 
-  ipcMain.handle("getSerialPorts", checkConnectionStatus);
+  const sendSummary = (): SummaryPanelData => {
+    return {
+      lineChartData: samples,
+      time: 6,
+      sessionSettings: settings,
+    };
+  };
 
   // Check connection
   checkConnectionStatus().then(async (res) => {
@@ -83,6 +90,7 @@ function createWindow() {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
         startArduinoTest(arduino, data);
+        settings = data;
         // console.log("Starts Test in 2 seconds");
 
         // Waits for 500 milliseconds
@@ -122,6 +130,8 @@ function createWindow() {
           mainWindow.webContents.send("getSensorValue", sensorValue);
       }
     });
+
+    ipcMain.handle("getSummary", sendSummary);
   });
 }
 

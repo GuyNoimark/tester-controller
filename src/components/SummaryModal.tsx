@@ -10,19 +10,16 @@ import {
   Row,
   Stack,
 } from "rsuite";
-import { ModalState } from "../Models/types";
+import { ModalState, SummaryPanelData } from "../Models/types";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import Chart from "react-apexcharts";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
 
-const SummaryModel = (props: { data: number[]; state: ModalState }) => {
-  const [open, setOpen] = useState(true);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
+const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
   // if (props.state === ModalState.Open) handleOpen();
   // if (props.state === ModalState.Closed) handleClose();
+  console.log(props.data);
 
   const date = new Date();
 
@@ -164,8 +161,8 @@ const SummaryModel = (props: { data: number[]; state: ModalState }) => {
   return (
     <>
       <Modal
-        open={open}
-        onClose={handleClose}
+        open={props.open}
+        // onClose={() => set}
         size={"md"}
         overflow={true}
         backdrop={"static"}
@@ -174,7 +171,7 @@ const SummaryModel = (props: { data: number[]; state: ModalState }) => {
       >
         <Modal.Header closeButton={false}>
           <Modal.Title>
-            <FlexboxGrid justify="space-between">
+            <FlexboxGrid justify="space-between" align="middle">
               Test Summary {date.toLocaleDateString()}{" "}
               {date.toLocaleTimeString().slice(0, -3)}
               <SplitButton onClick={() => {}} />
@@ -205,7 +202,7 @@ const SummaryModel = (props: { data: number[]; state: ModalState }) => {
                   }}
                 >
                   Cycles
-                  <h2>85</h2>
+                  <h2>{props.data?.sessionSettings.iterations}</h2>
                 </DashboardPanel>
               </Col>
               <Col md={6}>
@@ -217,7 +214,7 @@ const SummaryModel = (props: { data: number[]; state: ModalState }) => {
                   }}
                 >
                   FORCE
-                  <h2>20N</h2>
+                  <h2>{props.data?.sessionSettings.force}N</h2>
                 </DashboardPanel>
               </Col>
               <Col md={6}>
@@ -241,7 +238,7 @@ const SummaryModel = (props: { data: number[]; state: ModalState }) => {
                   }}
                 >
                   TIME ELAPSED
-                  <h2>15:35</h2>
+                  <h2>{props.data?.time}</h2>
                 </DashboardPanel>
               </Col>
             </Row>

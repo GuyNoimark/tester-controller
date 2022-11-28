@@ -9,7 +9,7 @@ import {
 import ArrowDownIcon from "@rsuite/icons/ArrowDown";
 import { useState } from "react";
 
-const options = ["Save as JSON", "Save as CSV", "Close"];
+const options = ["Save as JSON", "Save as CSV", "Save as Picture", "Close"];
 
 const SplitButton = (props: { onClick(): void }) => {
   const [action, setAction] = useState(0);
