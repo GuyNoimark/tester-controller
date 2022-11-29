@@ -30,6 +30,7 @@ function createWindow() {
   let lastTime = 0;
   const samples: number[] = [];
   let settings: SessionSettingsModel;
+  let startTestTime: number;
 
   const raiseErrorOnRenderer = (err: any, device?: Devices) => {
     console.log(
@@ -59,9 +60,11 @@ function createWindow() {
   };
 
   const sendSummary = (): SummaryPanelData => {
+    const endOfTestTime = new Date().getTime();
+    const timeElapsedInSeconds = (endOfTestTime - startTestTime) / 1000;
     return {
       lineChartData: samples,
-      time: 6,
+      time: timeElapsedInSeconds,
       sessionSettings: settings,
     };
   };
@@ -97,6 +100,7 @@ function createWindow() {
         const interval = setInterval(function () {
           clearInterval(interval);
           startTest = true;
+          startTestTime = new Date().getTime();
         }, 500);
       } else {
         raiseErrorOnRenderer(checkConnection);

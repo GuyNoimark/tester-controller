@@ -112,10 +112,14 @@ function App() {
           window.electronAPI.stopTest();
           setForceTarget(1000);
           const getSummary = async () => await window.electronAPI.getSummary();
-          getSummary().then((response) => {
+          getSummary().then((response: SummaryPanelData) => {
             setSummaryData(response);
-            setOpenSummaryModal(true);
             console.log(summaryData?.lineChartData.length);
+
+            const interval = setInterval(function () {
+              clearInterval(interval);
+              setOpenSummaryModal(true);
+            }, 1000);
           });
         }
       }
@@ -178,7 +182,10 @@ function App() {
                   <Panel
                     // header="Session Progress"
                     header={
-                      <Progress.Line percent={progressValue} status="active" />
+                      <Progress.Line
+                        percent={+progressValue.toFixed(0)}
+                        status="active"
+                      />
                     }
                     shaded
                     bordered

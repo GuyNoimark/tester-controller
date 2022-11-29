@@ -15,6 +15,7 @@ import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import Chart from "react-apexcharts";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
+import { convertSecondsToISO } from "../utils/utils";
 
 const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
   // if (props.state === ModalState.Open) handleOpen();
@@ -23,7 +24,9 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
 
   const date = new Date();
 
-  const _lineChartData: number[] = props.data?.lineChartData ?? [];
+  // const _lineChartData: number[] = props.data?.lineChartData ?? [];
+  const _lineChartData: number[] =
+    Array.from({ length: 40 }, () => Math.floor(Math.random() * 40 - 20)) ?? [];
 
   const chartSeriesData: ApexAxisChartSeries = [
     // { name: "sensorValue", data: [0, 5, 1, 4] },
@@ -243,7 +246,7 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
                   }}
                 >
                   TIME ELAPSED
-                  <h2>{props.data?.time}</h2>
+                  <h2>{convertSecondsToISO(props.data?.time ?? 0)}</h2>
                 </DashboardPanel>
               </Col>
             </Row>
