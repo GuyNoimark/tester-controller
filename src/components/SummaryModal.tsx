@@ -10,12 +10,13 @@ import {
   Row,
   Stack,
 } from "rsuite";
-import { ModalState, SummaryPanelData } from "../Models/types";
+import { ModalState, SaveOptions, SummaryPanelData } from "../Models/types";
 import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import Chart from "react-apexcharts";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
 import { convertSecondsToISO } from "../utils/utils";
+const FileSaver = require("file-saver");
 
 const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
   // if (props.state === ModalState.Open) handleOpen();
@@ -182,7 +183,14 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
             <FlexboxGrid justify="space-between" align="middle">
               Test Summary {date.toLocaleDateString()}{" "}
               {date.toLocaleTimeString().slice(0, -3)}
-              <SplitButton onClick={() => {}} />
+              <SplitButton
+                onClick={(saveOptions: SaveOptions) => {
+                  const blob = new Blob(["Hello, world!"], {
+                    type: "text/plain;charset=utf-8",
+                  });
+                  FileSaver.saveAs(blob, "hello world.txt");
+                }}
+              />
             </FlexboxGrid>
           </Modal.Title>
         </Modal.Header>

@@ -8,14 +8,22 @@ import {
 } from "rsuite";
 import ArrowDownIcon from "@rsuite/icons/ArrowDown";
 import { useState } from "react";
+import { SaveOptions } from "../Models/types";
 
-const options = ["Save as JSON", "Save as CSV", "Save as Picture", "Close"];
+const options = ["Save as CSV", "Save as Picture"];
 
-const SplitButton = (props: { onClick(): void }) => {
+const SplitButton = (props: { onClick(saveOptions: SaveOptions): void }) => {
   const [action, setAction] = useState(0);
   return (
     <ButtonGroup>
-      <Button onClick={props.onClick} appearance="primary">
+      <Button
+        onClick={() =>
+          props.onClick(
+            action === 0 ? SaveOptions.SAVE_AS_CSV : SaveOptions.SAVE_AS_PICTURE
+          )
+        }
+        appearance="primary"
+      >
         {options[action]}
       </Button>
       <Whisper

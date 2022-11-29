@@ -56,7 +56,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [getPorts, setGetPorts] = useState(false);
 
-  const [openSummaryModal, setOpenSummaryModal] = useState(false);
+  const [openSummaryModal, setOpenSummaryModal] = useState(true);
   const [summaryData, setSummaryData] = useState<SummaryPanelData>();
   // ipcRenderer.send("searchSerialPort", "test");
 

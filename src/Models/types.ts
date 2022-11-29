@@ -16,6 +16,12 @@ export type SummaryPanelData = {
   time: number;
 };
 
+export enum SaveOptions {
+  SAVE_AS_CSV = "Save As CSV",
+  SAVE_AS_PICTURE = "Save As Picture",
+  // Close,
+}
+
 // RED      background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)"
 // Orange   background: "linear-gradient(87deg, #fb6340 0, #fbb140 100%)"
 // GREEN    background: "linear-gradient(87deg, #2dce89 0, #2dcecc 100%)"

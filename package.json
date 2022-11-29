@@ -16,6 +16,7 @@
     "cross-env": "^7.0.3",
     "electron-is-dev": "^2.0.0",
     "express": "^4.18.2",
+    "file-saver": "^2.0.5",
     "os-browserify": "^0.3.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
