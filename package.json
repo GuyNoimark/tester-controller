@@ -17,6 +17,7 @@
     "electron-is-dev": "^2.0.0",
     "express": "^4.18.2",
     "file-saver": "^2.0.5",
+    "html-to-image": "^1.10.8",
     "os-browserify": "^0.3.0",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
@@ -63,6 +64,7 @@
   },
   "devDependencies": {
     "@types/electron": "^1.6.10",
+    "@types/file-saver": "^2.0.5",
     "@types/react-flexr": "^2.0.12",
     "concurrently": "^7.5.0",
     "electron": "^21.2.3",

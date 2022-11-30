@@ -16,6 +16,9 @@ import Chart from "react-apexcharts";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
 import { convertSecondsToISO } from "../utils/utils";
+import * as htmlToImage from "html-to-image";
+import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
+import { saveAs } from "file-saver";
 const FileSaver = require("file-saver");
 
 const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
@@ -40,6 +43,7 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
   const maxValue = Math.max(..._lineChartData);
 
   // console.log(maxValue);
+  const imageArea = document.getElementById("screenshotArea");
 
   const getIndex = (value: number): number => _lineChartData.indexOf(value);
 
@@ -177,6 +181,7 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
         backdrop={"static"}
         keyboard={false}
         className="summaryModal"
+        id={"screenshotArea"}
       >
         <Modal.Header closeButton={false}>
           <Modal.Title>
@@ -185,10 +190,30 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
               {date.toLocaleTimeString().slice(0, -3)}
               <SplitButton
                 onClick={(saveOptions: SaveOptions) => {
-                  const blob = new Blob(["Hello, world!"], {
-                    type: "text/plain;charset=utf-8",
-                  });
-                  FileSaver.saveAs(blob, "hello world.txt");
+                  const formattedDate = date.toLocaleDateString("en-GB");
+                  const formattedTime = date.toLocaleTimeString("en-GB");
+                  const saveAsFileName = formattedDate + "_" + formattedTime;
+                  console.log(formattedDate, formattedTime);
+
+                  if (saveOptions === SaveOptions.SAVE_AS_CSV) {
+                    const blob = new Blob(
+                      _lineChartData.map((value) =>
+                        value.toString().concat(",\n")
+                      ),
+                      {
+                        type: "text/plain;charset=utf-8",
+                      }
+                    );
+                    FileSaver.saveAs(blob, `${saveAsFileName}.csv`);
+                  } else if (saveOptions === SaveOptions.SAVE_AS_PICTURE) {
+                    htmlToImage.toBlob(imageArea!).then(function (blob: any) {
+                      if (window.saveAs) {
+                        window.saveAs(blob ?? "", `${saveAsFileName}.png`);
+                      } else {
+                        FileSaver.saveAs(blob, `${saveAsFileName}.png`);
+                      }
+                    });
+                  }
                 }}
               />
             </FlexboxGrid>
