@@ -23,6 +23,7 @@ import { SessionSettingsModel } from "../Models/types";
 import { Hash, Aperture } from "react-feather";
 import DashboardPanel from "./DashboardPanel";
 import { useUpdateEffect } from "rsuite/esm/utils";
+import { ConnectionStatus } from "../Models/ConnectionState";
 
 // const Field = React.forwardRef((props, ref) => {
 //   // const { name, message, label, accepter, error, ...rest } = props;
@@ -71,9 +72,7 @@ const SessionSettingsPanel = (props: {
 
   const [validationErrorMessage, setValidationErrorMessage] =
     useState<string>("");
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [openValidationModal, setOpenValidationModal] = useState(false);
 
   const [enableAdvanced, setEnableAdvanced] = useState(false);
 
@@ -84,6 +83,33 @@ const SessionSettingsPanel = (props: {
   }
 
   const [buttonState, setButtonState] = useState(ButtonState.START_TEST);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [openSerialModal, setOpenSerialModal] = useState(false);
+
+  const [getPorts, setGetPorts] = useState(false);
+
+  const getSerial = async () => await window.electronAPI.getSerialPorts();
+
+  const connectPorts = (): boolean => {
+    getSerial().then((response: ConnectionStatus) => {
+      if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+        setErrorMessage(response.toString());
+        setOpenSerialModal(true);
+        return false;
+      } else {
+        console.log("Devices Connected");
+        setOpenSerialModal(false);
+        setGetPorts(false);
+        return true;
+      }
+    });
+    return false;
+  };
+
+  useEffect(() => {
+    setTimeout(() => connectPorts(), 500);
+  }, [getPorts]);
 
   useEffect(() => {
     console.log("CLEAR");
@@ -208,7 +234,9 @@ const SessionSettingsPanel = (props: {
                 const validationResponse = validate(formData);
                 if (typeof validationResponse === "string") {
                   setValidationErrorMessage(validationResponse.toString());
-                  handleOpen();
+                  setOpenValidationModal(true);
+                } else if (!connectPorts()) {
+                  setGetPorts(true);
                 } else {
                   console.log("Start Test");
                   setButtonState(ButtonState.STOP_TEST);
@@ -230,7 +258,11 @@ const SessionSettingsPanel = (props: {
         </Stack>
       </DashboardPanel>
 
-      <Modal open={open} onClose={handleClose} size={"xs"}>
+      <Modal
+        open={openValidationModal}
+        onClose={() => setOpenValidationModal(false)}
+        size={"xs"}
+      >
         <Modal.Header>
           <Modal.Title>
             {" "}
@@ -239,8 +271,41 @@ const SessionSettingsPanel = (props: {
         </Modal.Header>
         <Modal.Body>{validationErrorMessage}</Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleClose} appearance="primary" color={"orange"}>
+          <Button
+            onClick={() => setOpenValidationModal(false)}
+            appearance="primary"
+            color={"orange"}
+          >
             Ok
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        open={openSerialModal}
+        onClose={() => setOpenSerialModal(false)}
+        backdrop={"static"}
+        role="alertdialog"
+        keyboard={false}
+        size={"xs"}
+      >
+        <Modal.Header closeButton={false}>
+          <Modal.Title>
+            {" "}
+            <RemindRoundIcon style={{ color: "#f08901", fontSize: 30 }} /> Error
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{errorMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick={() => setGetPorts(true)}
+            appearance="primary"
+            color={"orange"}
+            style={{
+              background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
+            }}
+            loading={getPorts}
+          >
+            Try Again
           </Button>
         </Modal.Footer>
       </Modal>

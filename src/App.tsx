@@ -68,36 +68,17 @@ function App() {
     ERROR,
   }
 
-  const getProgress = async () => await window.electronAPI.getSerialPorts();
-
-  useEffect(() => {
-    const getResponse = async () => await window.electronAPI.getSerialPorts();
-    setTimeout(
-      () =>
-        getResponse().then((response: ConnectionStatus) => {
-          if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-            setErrorMessage(response.toString());
-            setOpen(true);
-          } else {
-            console.log("Devices Connected");
-            setOpen(false);
-            setGetPorts(false);
-          }
-          setGetPorts(false);
-        }),
-      500
-    );
-
-    const removeEventListener = window.electronAPI.getErrors(
-      (event: any, error: string) => {
-        setErrorMessage(error);
-        setOpen(true);
-      }
-    );
-    return () => {
-      removeEventListener();
-    };
-  }, [getPorts]);
+  // useEffect(() => {
+  //   const removeEventListener = window.electronAPI.getErrors(
+  //     (event: any, error: string) => {
+  //       setErrorMessage(error);
+  //       setOpen(true);
+  //     }
+  //   );
+  //   return () => {
+  //     removeEventListener();
+  //   };
+  // }, [getPorts]);
 
   useEffect(() => {
     const removeEventListenerGetProgress = window.electronAPI.getProgress(
@@ -245,38 +226,6 @@ function App() {
               setOpenSummaryModal(false);
             }}
           />
-          <Modal
-            open={open}
-            onClose={() => setOpen(false)}
-            backdrop={"static"}
-            role="alertdialog"
-            keyboard={false}
-            size={"xs"}
-          >
-            <Modal.Header closeButton={false}>
-              <Modal.Title>
-                {" "}
-                <RemindRoundIcon
-                  style={{ color: "#f08901", fontSize: 30 }}
-                />{" "}
-                Error
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{errorMessage}</Modal.Body>
-            <Modal.Footer>
-              <Button
-                onClick={() => setGetPorts(true)}
-                appearance="primary"
-                color={"orange"}
-                style={{
-                  background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
-                }}
-                loading={getPorts}
-              >
-                Try Again
-              </Button>
-            </Modal.Footer>
-          </Modal>
         </div>
       </div>
     </CustomProvider>
