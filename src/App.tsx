@@ -56,7 +56,8 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [getPorts, setGetPorts] = useState(false);
 
-  const [openSummaryModal, setOpenSummaryModal] = useState(true);
+  const [resetSettingsPanel, setResetSettingsPanel] = useState(false);
+  const [openSummaryModal, setOpenSummaryModal] = useState(false);
   const [summaryData, setSummaryData] = useState<SummaryPanelData>();
   // ipcRenderer.send("searchSerialPort", "test");
 
@@ -111,11 +112,10 @@ function App() {
         if ((value / iterations) * 100 === 100) {
           window.electronAPI.stopTest();
           setForceTarget(1000);
+
           const getSummary = async () => await window.electronAPI.getSummary();
           getSummary().then((response: SummaryPanelData) => {
             setSummaryData(response);
-            console.log(summaryData?.lineChartData.length);
-
             const interval = setInterval(function () {
               clearInterval(interval);
               setOpenSummaryModal(true);
@@ -160,10 +160,12 @@ function App() {
                   {/* <div style={{ pointerEvents: "none", opacity: "0.4" }}> */}
                   <SessionInput
                     // onPropertyChange={(formData) => }
+                    resetForm={resetSettingsPanel}
                     onClickStop={() => {
                       window.electronAPI.stopTest();
                       setForceTarget(1000);
                       setProgressValue(0);
+                      setResetSettingsPanel(true);
                     }}
                     onClickStart={(formData) => {
                       setForceTarget(formData.force);
@@ -251,7 +253,14 @@ function App() {
               </Col>
             </Row>
           </Grid>
-          <SummaryModal data={summaryData} open={openSummaryModal} />
+          <SummaryModal
+            data={summaryData}
+            open={openSummaryModal}
+            onClose={() => {
+              setResetSettingsPanel(true);
+              setProgressValue(0);
+            }}
+          />
           <Modal
             open={open}
             onClose={() => setOpen(false)}

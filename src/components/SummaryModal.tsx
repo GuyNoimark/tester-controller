@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
+  ButtonToolbar,
   Col,
   FlexboxGrid,
   Grid,
@@ -19,12 +20,21 @@ import { convertSecondsToISO } from "../utils/utils";
 import * as htmlToImage from "html-to-image";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 import { saveAs } from "file-saver";
+import { useUpdateEffect } from "rsuite/esm/utils";
 const FileSaver = require("file-saver");
 
-const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
+const SummaryModel = (props: {
+  data?: SummaryPanelData;
+  open: boolean;
+  onClose(): void;
+}) => {
   // if (props.state === ModalState.Open) handleOpen();
   // if (props.state === ModalState.Closed) handleClose();
-  console.log(props.data?.lineChartData);
+  // console.log(props.data?.lineChartData);
+
+  const [open, setOpen] = useState(props.open);
+
+  useEffect(() => setOpen(props.open), [props.open]);
 
   const date = new Date();
 
@@ -174,7 +184,7 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
   return (
     <>
       <Modal
-        open={props.open}
+        open={open}
         // onClose={() => set}
         size={"md"}
         overflow={true}
@@ -188,34 +198,46 @@ const SummaryModel = (props: { data?: SummaryPanelData; open: boolean }) => {
             <FlexboxGrid justify="space-between" align="middle">
               Test Summary {date.toLocaleDateString()}{" "}
               {date.toLocaleTimeString().slice(0, -3)}
-              <SplitButton
-                onClick={(saveOptions: SaveOptions) => {
-                  const formattedDate = date.toLocaleDateString("en-GB");
-                  const formattedTime = date.toLocaleTimeString("en-GB");
-                  const saveAsFileName = formattedDate + "_" + formattedTime;
-                  console.log(formattedDate, formattedTime);
+              <ButtonToolbar>
+                <SplitButton
+                  onClick={(saveOptions: SaveOptions) => {
+                    const formattedDate = date.toLocaleDateString("en-GB");
+                    const formattedTime = date.toLocaleTimeString("en-GB");
+                    const saveAsFileName = formattedDate + "_" + formattedTime;
+                    console.log(formattedDate, formattedTime);
 
-                  if (saveOptions === SaveOptions.SAVE_AS_CSV) {
-                    const blob = new Blob(
-                      _lineChartData.map((value) =>
-                        value.toString().concat(",\n")
-                      ),
-                      {
-                        type: "text/plain;charset=utf-8",
-                      }
-                    );
-                    FileSaver.saveAs(blob, `${saveAsFileName}.csv`);
-                  } else if (saveOptions === SaveOptions.SAVE_AS_PICTURE) {
-                    htmlToImage.toBlob(imageArea!).then(function (blob: any) {
-                      if (window.saveAs) {
-                        window.saveAs(blob ?? "", `${saveAsFileName}.png`);
-                      } else {
-                        FileSaver.saveAs(blob, `${saveAsFileName}.png`);
-                      }
-                    });
-                  }
-                }}
-              />
+                    if (saveOptions === SaveOptions.SAVE_AS_CSV) {
+                      const blob = new Blob(
+                        _lineChartData.map((value) =>
+                          value.toString().concat(",\n")
+                        ),
+                        {
+                          type: "text/plain;charset=utf-8",
+                        }
+                      );
+                      FileSaver.saveAs(blob, `${saveAsFileName}.csv`);
+                    } else if (saveOptions === SaveOptions.SAVE_AS_PICTURE) {
+                      htmlToImage.toBlob(imageArea!).then(function (blob: any) {
+                        if (window.saveAs) {
+                          window.saveAs(blob ?? "", `${saveAsFileName}.png`);
+                        } else {
+                          FileSaver.saveAs(blob, `${saveAsFileName}.png`);
+                        }
+                      });
+                    }
+                  }}
+                />
+                <Button
+                  style={{ backgroundColor: "#d3d3d3" }}
+                  appearance="default"
+                  onClick={() => {
+                    setOpen(false);
+                    props.onClose();
+                  }}
+                >
+                  Close
+                </Button>
+              </ButtonToolbar>
             </FlexboxGrid>
           </Modal.Title>
         </Modal.Header>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Panel,
   Stack,
@@ -22,6 +22,7 @@ import { isInteger } from "lodash";
 import { SessionSettingsModel } from "../Models/types";
 import { Hash, Aperture } from "react-feather";
 import DashboardPanel from "./DashboardPanel";
+import { useUpdateEffect } from "rsuite/esm/utils";
 
 // const Field = React.forwardRef((props, ref) => {
 //   // const { name, message, label, accepter, error, ...rest } = props;
@@ -46,6 +47,7 @@ import DashboardPanel from "./DashboardPanel";
 const SessionSettingsPanel = (props: {
   onClickStart(data: SessionSettingsModel): void;
   onClickStop(): void;
+  resetForm: boolean;
 }) => {
   const [formData, setData] = useState<SessionSettingsModel>({
     iterations: 0,
@@ -83,6 +85,12 @@ const SessionSettingsPanel = (props: {
 
   const [buttonState, setButtonState] = useState(ButtonState.START_TEST);
 
+  useEffect(() => {
+    console.log("CLEAR");
+    setData({ iterations: 0, force: 0, push: true, stroke: 5 });
+    setButtonState(ButtonState.START_TEST);
+  }, [props.resetForm]);
+
   const maxForceAllowed: number = 500;
 
   const validate = (formData: SessionSettingsModel): boolean | String => {
@@ -119,6 +127,7 @@ const SessionSettingsPanel = (props: {
             // defaultValue={3}
             prefix="Iterations"
             onChange={(iterations) => setIterations(+iterations)}
+            value={formData.iterations}
           />
           <InputNumber
             min={1}
@@ -126,6 +135,7 @@ const SessionSettingsPanel = (props: {
             // defaultValue={5}
             prefix="Neuton Force"
             onChange={(force) => setForce(+force)}
+            value={formData.force}
           />
           {/* <Toggle
           size="lg"
@@ -138,6 +148,7 @@ const SessionSettingsPanel = (props: {
             appearance="picker"
             defaultValue="Push"
             onChange={(value) => setPush(value === "Push" ? true : false)}
+            value={formData.push ? "Push" : "Pull"}
           >
             <Radio value="Push">
               <SortDownIcon /> Push
@@ -165,6 +176,7 @@ const SessionSettingsPanel = (props: {
             prefix={"Stroke"}
             postfix={"mm"}
             onChange={(value) => setStroke(+value)}
+            value={formData.stroke}
           />
           {/* <Slider
             disabled={!enableAdvanced}
@@ -206,6 +218,7 @@ const SessionSettingsPanel = (props: {
                 console.log("STOP!!!");
                 props.onClickStop();
                 setButtonState(ButtonState.START_TEST);
+                setData({ iterations: 0, force: 0, push: true, stroke: 5 });
               }
             }}
             block
