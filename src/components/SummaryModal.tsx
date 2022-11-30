@@ -53,7 +53,6 @@ const SummaryModel = (props: {
   const maxValue = Math.max(..._lineChartData);
 
   // console.log(maxValue);
-  const imageArea = document.getElementById("screenshotArea");
 
   const getIndex = (value: number): number => _lineChartData.indexOf(value);
 
@@ -217,7 +216,11 @@ const SummaryModel = (props: {
                       );
                       FileSaver.saveAs(blob, `${saveAsFileName}.csv`);
                     } else if (saveOptions === SaveOptions.SAVE_AS_PICTURE) {
+                      const imageArea =
+                        document.getElementById("screenshotArea");
+
                       htmlToImage.toBlob(imageArea!).then(function (blob: any) {
+                        console.log("save");
                         if (window.saveAs) {
                           window.saveAs(blob ?? "", `${saveAsFileName}.png`);
                         } else {

@@ -32,65 +32,63 @@ const ChartPanel = (props: { forceTarget: number }) => {
 
   return (
     <>
-      <DashboardPanel disabled={true}>
-        <Chart
-          options={{
-            chart: {
-              id: "realtime",
-              animations: {
-                enabled: true,
-                easing: "linear",
-                dynamicAnimation: {
-                  speed: 10,
-                },
-              },
-              toolbar: {
-                show: true,
-              },
-              zoom: {
-                enabled: false,
+      <Chart
+        options={{
+          chart: {
+            id: "realtime",
+            animations: {
+              enabled: true,
+              easing: "linear",
+              dynamicAnimation: {
+                speed: 10,
               },
             },
-            stroke: {
-              curve: "straight",
-              //   curve: "stepline",
-              //   curve: "smooth",
+            toolbar: {
+              show: true,
             },
-            xaxis: {
-              axisTicks: {
-                show: true,
-              },
-              // type: 'datetime',
-              //   range: XAXISRANGE,
+            zoom: {
+              enabled: false,
             },
-            yaxis: {
-              min: -20,
-              max: 20,
+          },
+          stroke: {
+            curve: "straight",
+            //   curve: "stepline",
+            //   curve: "smooth",
+          },
+          xaxis: {
+            axisTicks: {
+              show: true,
+            },
+            // type: 'datetime',
+            //   range: XAXISRANGE,
+          },
+          yaxis: {
+            min: -20,
+            max: 20,
 
-              //   tickAmount: 10,
-            },
-            annotations: {
-              yaxis: [
-                {
-                  y: props.forceTarget,
+            //   tickAmount: 10,
+          },
+          annotations: {
+            yaxis: [
+              {
+                y: props.forceTarget,
+                borderColor: "#f08901",
+                label: {
                   borderColor: "#f08901",
-                  label: {
-                    borderColor: "#f08901",
-                    style: {
-                      color: "#fff",
-                      background: "#f08901",
-                    },
-                    text: "Force target: " + props.forceTarget,
+                  style: {
+                    color: "#fff",
+                    background: "#f08901",
                   },
+                  text: "Force target: " + props.forceTarget,
                 },
-              ],
-            },
-          }}
-          series={chartSeriesData}
-          type="line"
-          // width="500"
-        />
-      </DashboardPanel>
+              },
+            ],
+          },
+        }}
+        series={chartSeriesData}
+        type="line"
+        // width="500"
+      />
     </>
   );
 };

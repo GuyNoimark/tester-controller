@@ -59,12 +59,6 @@ function App() {
   const [resetSettingsPanel, setResetSettingsPanel] = useState(false);
   const [openSummaryModal, setOpenSummaryModal] = useState(false);
   const [summaryData, setSummaryData] = useState<SummaryPanelData>();
-  // ipcRenderer.send("searchSerialPort", "test");
-
-  // const ENDPOINT = "http://127.0.0.1:4001";
-  // const [response, setResponse] = useState("");
-
-  // const [reloadPorts, setReloadPorts] = useState(false);
 
   enum AppState {
     CONFIGURE,
@@ -116,10 +110,13 @@ function App() {
           const getSummary = async () => await window.electronAPI.getSummary();
           getSummary().then((response: SummaryPanelData) => {
             setSummaryData(response);
-            const interval = setInterval(function () {
-              clearInterval(interval);
-              setOpenSummaryModal(true);
-            }, 1000);
+            console.log(response);
+            setOpenSummaryModal(true);
+            setResetSettingsPanel(false);
+
+            // const interval = setInterval(function () {
+            //   clearInterval(interval);
+            // }, 1000);
           });
         }
       }
@@ -151,15 +148,13 @@ function App() {
         <div>
           <Grid fluid>
             <Row gutter={padding}>
-              <Col md={8}>
+              <Col md={6}>
                 <Stack
                   direction="column"
                   spacing={padding}
                   alignItems="stretch"
                 >
-                  {/* <div style={{ pointerEvents: "none", opacity: "0.4" }}> */}
                   <SessionInput
-                    // onPropertyChange={(formData) => }
                     resetForm={resetSettingsPanel}
                     onClickStop={() => {
                       window.electronAPI.stopTest();
@@ -173,16 +168,8 @@ function App() {
                       window.electronAPI.writeArduino(formData);
                     }}
                   ></SessionInput>
-                  {/* </div> */}
-                  {/* <Button
-                    onClick={() => {
-                      window.electronAPI.readArduino();
-                    }}
-                  >
-                    Read
-                  </Button> */}
+
                   <Panel
-                    // header="Session Progress"
                     header={
                       <Progress.Line
                         percent={+progressValue.toFixed(0)}
@@ -192,18 +179,12 @@ function App() {
                     shaded
                     bordered
                     collapsible
-                    // className="overlay"
-                    // style={{
-                    //   background:
-                    //     "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
-                    // }}
                   >
                     <Stack
                       direction="column"
                       spacing={padding}
                       alignItems="stretch"
                     >
-                      {/* <Progress.Line percent={45} status="active" /> */}
                       <Timeline>
                         <Timeline.Item>16:27:41 Session Started</Timeline.Item>
                         <Timeline.Item>16:28:43 50% Done</Timeline.Item>
@@ -221,16 +202,18 @@ function App() {
                   </Panel>
                 </Stack>
               </Col>
-              <Col md={16}>
+              <Col md={18}>
                 <Stack
                   spacing={padding}
                   direction="column"
                   alignItems="stretch"
                 >
                   <Row>
-                    <ChartPanel forceTarget={forceTarget} />
+                    <DashboardPanel disabled={false}>
+                      <ChartPanel forceTarget={forceTarget} />
+                    </DashboardPanel>
                   </Row>
-                  <Row gutter={padding}>
+                  {/* <Row gutter={padding}>
                     <Col md={12}>
                       <DashboardPanel header="TEST">HI</DashboardPanel>
                     </Col>
@@ -248,7 +231,7 @@ function App() {
                         <Aperture color="white" />
                       </Panel>
                     </Col>
-                  </Row>
+                  </Row> */}
                 </Stack>
               </Col>
             </Row>
@@ -259,6 +242,7 @@ function App() {
             onClose={() => {
               setResetSettingsPanel(true);
               setProgressValue(0);
+              setOpenSummaryModal(false);
             }}
           />
           <Modal
@@ -293,58 +277,6 @@ function App() {
               </Button>
             </Modal.Footer>
           </Modal>
-
-          {/* </Row>
-
-          {/* <Row>
-              <Col md={6} sm={12}>
-                <Panel header="Iterations" shaded>
-                  <InputNumber min={0} step={1} />
-                </Panel>{" "}
-              </Col>
-              <Col md={6} sm={12}>
-                <Panel header="Testing Progress" shaded>
-                  <Progress.Line percent={30} status="active" />
-                </Panel>{" "}
-              </Col>
-              <Col md={6} sm={12}>
-                <Animation.Collapse in={show}>
-                  {(props, ref) => (
-                    <div {...props} ref={ref}>
-                      <Panel header="Panel title" shaded>
-                      </Panel>
-                    </div>
-                  )}
-                </Animation.Collapse>
-              </Col>
-              <Col md={6} sm={12}>
-                <Panel header="Control Buttons" shaded>
-                  <FlexboxGrid justify="space-around">
-                    <FlexboxGrid.Item>
-                      <ButtonToolbar>
-                        <Button
-                          color="orange"
-                          appearance="primary"
-                          onClick={onChange}
-                        >
-                          Hide
-                        </Button>
-                        <Button color="green" appearance="primary">
-                          Red
-                        </Button>
-                        <Button color="cyan" appearance="primary">
-                          Orange
-                        </Button>
-                        <Button color="violet" appearance="primary">
-                          Yellow
-                        </Button>
-                      </ButtonToolbar>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                </Panel>{" "}
-              </Col>
-            </Row> */}
-          {/* </Grid> */}
         </div>
       </div>
     </CustomProvider>
