@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { SerialPort } from "serialport";
+import { ConnectionStatus } from "../Models/ConnectionState";
 import { SessionSettingsModel, SummaryPanelData } from "../Models/types";
 
 const SampleRate = 0.5;
@@ -29,12 +30,12 @@ const getPaths = async (): Promise<DevicesPaths> => {
   };
 };
 
-const connectToArduino = (arduino: SerialPort): void =>
+const openArduinoPort = (arduino: SerialPort): void =>
   arduino.open((err) => {
     if (err) console.log("Error opening arduino port: ", err.message);
   });
 
-const connectToLARIT = (LARIT: SerialPort): void =>
+const openLARITPort = (LARIT: SerialPort): void =>
   LARIT.open((err) => {
     if (err) console.log("Error opening arduino port: ", err.message);
   });
@@ -141,44 +142,55 @@ const listenForSendSummary = () => {
   ipcMain.handle("getSummary", sendSummary);
 };
 
-export const handleSerialCommunication = async (
-  mainWindow: BrowserWindow
-): Promise<void> => {
-  try {
+const listenForConnectDevices = () => {
+  ipcMain.handle("getSerialPorts", async () => {
     const paths = await getPaths();
 
-    const arduino = new SerialPort({
+    arduino = new SerialPort({
       path: paths.arduinoPath ?? "",
       baudRate: 115200,
       autoOpen: false,
     });
 
-    const LARIT = new SerialPort({
+    LARIT = new SerialPort({
       path: paths.LARITPath ?? "",
       baudRate: 9600,
       autoOpen: false,
     });
 
-    connectToArduino(arduino);
-    connectToLARIT(LARIT);
-
     console.log("Connected:", arduino, LARIT);
 
-    listenForStartTest(arduino);
+    return ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED;
+  });
+};
 
-    asksSensorForSample(LARIT);
-    listenForSensorSampleAndSend(LARIT, arduino, mainWindow);
+let arduino: SerialPort;
+let LARIT: SerialPort;
 
-    listenForStopTest(arduino, LARIT);
+export const handleSerialCommunication = async (
+  mainWindow: BrowserWindow
+): Promise<void> => {
+  // try {
+  listenForConnectDevices();
 
-    listenForSendSummary();
+  openArduinoPort(arduino);
+  openLARITPort(LARIT);
 
-    // Get ports
-    // Connect to arduino
-    // connect to LARIT
-    // listenForRequestsFromRenderer(client);
-    // listenForReconnection(client);
-  } catch (error) {
-    console.log(error);
-  }
+  listenForStartTest(arduino);
+
+  asksSensorForSample(LARIT);
+  listenForSensorSampleAndSend(LARIT, arduino, mainWindow);
+
+  listenForStopTest(arduino, LARIT);
+
+  listenForSendSummary();
+
+  // Get ports
+  // Connect to arduino
+  // connect to LARIT
+  // listenForRequestsFromRenderer(client);
+  // listenForReconnection(client);
+  // } catch (error) {
+  //   console.log(error);
+  // }
 };
