@@ -4,6 +4,7 @@ import { ConnectionStatus } from "./Models/ConnectionState";
 const isDev = require("electron-is-dev");
 import { SerialPort } from "serialport";
 import { SessionSettingsModel, SummaryPanelData } from "./Models/types";
+import { ServerOptions } from "socket.io";
 
 function createWindow() {
   // Create the browser window.
@@ -69,73 +70,82 @@ function createWindow() {
     };
   };
 
+  // let arduino: SerialPort;
+  // let LARIT: SerialPort;
+  let connected: boolean = false;
   // Check connection
-  checkConnectionStatus().then(async (res) => {
-    //Send connection status to the renderer;
-    ipcMain.handle("getSerialPorts", checkConnectionStatus);
+  //Send connection status to the renderer;
+  ipcMain.handle("getSerialPorts", async () => {
+    const connection = await checkConnectionStatus();
+    console.log("Connection is:", connection);
+    if (connection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+      const arduino = await getSerialPortDevice(Devices.arduino);
+      const LARIT = await getSerialPortDevice(Devices.LARIT);
 
-    const arduino = await getSerialPortDevice(Devices.arduino);
-    const LARIT = await getSerialPortDevice(Devices.LARIT);
-
-    // Reads arduino serialPort in "flowing mode"
-    arduino.on("data", function (data: Buffer) {
-      console.log("Data:", data.toString("utf-8"));
-      if (data.toString("utf-8").includes("i")) {
-        iterationsPreformed += 1;
-        mainWindow.webContents.send("setProgress", iterationsPreformed);
-        console.log(iterationsPreformed);
-      }
-      // if (data.toString("utf-8"))
-    });
-
-    //Start the test
-    ipcMain.on("arduinoWrite", async (event, data: SessionSettingsModel) => {
-      const checkConnection = await checkConnectionStatus();
-      if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-        startArduinoTest(arduino, data);
-        settings = data;
-        // console.log("Starts Test in 2 seconds");
-
-        // Waits for 500 milliseconds
-        const interval = setInterval(function () {
-          clearInterval(interval);
-          startTest = true;
-          startTestTime = new Date().getTime();
-        }, 500);
-      } else {
-        raiseErrorOnRenderer(checkConnection);
-      }
-    });
-
-    // Asks for a sensor sample
-    setInterval(() => {
-      LARIT.write("?", function (err: any) {
-        if (err) raiseErrorOnRenderer(err.message, Devices.LARIT);
+      arduino.on("data", function (data: Buffer) {
+        console.log("Data:", data.toString("utf-8"));
+        if (data.toString("utf-8").includes("i")) {
+          iterationsPreformed += 1;
+          mainWindow.webContents.send("setProgress", iterationsPreformed);
+          console.log(iterationsPreformed);
+        }
+        // if (data.toString("utf-8"))
       });
-    }, 0.5);
 
-    ipcMain.on("stopTest", () => {
-      startTest = false;
-      iterationsPreformed = 0;
-    });
+      //Start the test
+      ipcMain.on("arduinoWrite", async (event, data: SessionSettingsModel) => {
+        const checkConnection = await checkConnectionStatus();
+        if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+          startArduinoTest(arduino!, data);
+          settings = data;
+          // console.log("Starts Test in 2 seconds");
 
-    // Saves the return sample
-    LARIT.on("data", function (data: Buffer) {
-      const formattedData: string = data.toString("utf8").slice(0, -3);
-      let sensorValue = parseFloat(formattedData);
-      samples.push(sensorValue);
-      // console.log("Data:", sensorValue);
-      // console.log("Data:", startTest);
+          // Waits for 500 milliseconds
+          const interval = setInterval(function () {
+            clearInterval(interval);
+            startTest = true;
+            startTestTime = new Date().getTime();
+          }, 500);
+        } else {
+          raiseErrorOnRenderer(checkConnection);
+        }
+      });
 
-      if (startTest) {
-        sendSensorValueToArduino(sensorValue, arduino);
-        if (samples.length % 100 === 0)
-          //Sends 1 sample ever 50 millis
-          mainWindow.webContents.send("getSensorValue", sensorValue);
-      }
-    });
+      // Asks for a sensor sample
+      setInterval(() => {
+        LARIT !== undefined
+          ? LARIT.write("?", function (err: any) {
+              if (err) raiseErrorOnRenderer(err.message, Devices.LARIT);
+            })
+          : "";
+      }, 0.5);
 
-    ipcMain.handle("getSummary", sendSummary);
+      // Saves the return sample
+      LARIT.on("data", function (data: Buffer) {
+        const formattedData: string = data.toString("utf8").slice(0, -3);
+        let sensorValue = parseFloat(formattedData);
+        samples.push(sensorValue);
+        // console.log("Data:", sensorValue);
+        // console.log("Data:", startTest);
+
+        if (startTest) {
+          sendSensorValueToArduino(sensorValue, arduino!);
+          if (samples.length % 100 === 0)
+            //Sends 1 sample ever 50 millis
+            mainWindow.webContents.send("getSensorValue", sensorValue);
+        }
+
+        ipcMain.on("stopTest", () => {
+          startTest = false;
+          iterationsPreformed = 0;
+        });
+
+        ipcMain.handle("getSummary", sendSummary);
+      });
+    } else {
+      console.log("Error");
+    }
+    return connection;
   });
 }
 

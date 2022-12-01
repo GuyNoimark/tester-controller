@@ -87,29 +87,22 @@ const SessionSettingsPanel = (props: {
   const [errorMessage, setErrorMessage] = useState("");
   const [openSerialModal, setOpenSerialModal] = useState(false);
 
-  const [getPorts, setGetPorts] = useState(false);
+  const [loadingIcon, setLoadingIcon] = useState(false);
 
   const getSerial = async () => await window.electronAPI.getSerialPorts();
 
-  const connectPorts = (): boolean => {
-    getSerial().then((response: ConnectionStatus) => {
-      if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-        setErrorMessage(response.toString());
-        setOpenSerialModal(true);
-        return false;
-      } else {
-        console.log("Devices Connected");
-        setOpenSerialModal(false);
-        setGetPorts(false);
-        return true;
-      }
-    });
-    return false;
-  };
+  // const portsConnected = (): boolean => {
+  //   return getSerial()
+  //     .then((response: ConnectionStatus) => {
+  //       console.log(response);
+  //       response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED ? false : true;
+  //     })
+  //     .catch((err) => true);
+  // };
 
-  useEffect(() => {
-    setTimeout(() => connectPorts(), 500);
-  }, [getPorts]);
+  // useEffect(() => {
+  //   setTimeout(() => portsConnected(), 500);
+  // }, [loadingIcon]);
 
   useEffect(() => {
     console.log("CLEAR");
@@ -229,14 +222,19 @@ const SessionSettingsPanel = (props: {
             }
             //   "linear-gradient(87deg, #11cdef 0, #1171ef 100%)",
             // }}
-            onClick={() => {
+            onClick={async () => {
               if (buttonState === ButtonState.START_TEST) {
                 const validationResponse = validate(formData);
+                const serialResponse = await getSerial();
                 if (typeof validationResponse === "string") {
                   setValidationErrorMessage(validationResponse.toString());
                   setOpenValidationModal(true);
-                } else if (!connectPorts()) {
-                  setGetPorts(true);
+                } else if (
+                  serialResponse !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED
+                ) {
+                  setErrorMessage(serialResponse);
+                  setOpenSerialModal(true);
+                  // setLoadingIcon(true);
                 } else {
                   console.log("Start Test");
                   setButtonState(ButtonState.STOP_TEST);
@@ -297,13 +295,30 @@ const SessionSettingsPanel = (props: {
         <Modal.Body>{errorMessage}</Modal.Body>
         <Modal.Footer>
           <Button
-            onClick={() => setGetPorts(true)}
+            onClick={async () => {
+              const serialResponse = await getSerial();
+
+              if (
+                serialResponse !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED
+              ) {
+                setLoadingIcon(true);
+                setLoadingIcon(true);
+              } else {
+                setLoadingIcon(false);
+                setOpenSerialModal(false);
+              }
+
+              setTimeout(() => {
+                setLoadingIcon(false);
+                setErrorMessage(serialResponse);
+              }, 500);
+            }}
             appearance="primary"
             color={"orange"}
             style={{
               background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
             }}
-            loading={getPorts}
+            loading={loadingIcon}
           >
             Try Again
           </Button>
