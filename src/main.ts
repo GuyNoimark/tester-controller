@@ -92,6 +92,8 @@ function createWindow() {
     ipcMain.on("arduinoWrite", async (event, data: SessionSettingsModel) => {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+        arduino.open();
+        LARIT.open();
         startArduinoTest(arduino, data);
         settings = data;
         // console.log("Starts Test in 2 seconds");
@@ -117,6 +119,8 @@ function createWindow() {
     ipcMain.on("stopTest", () => {
       startTest = false;
       iterationsPreformed = 0;
+      arduino.close();
+      LARIT.close();
     });
 
     // Saves the return sample
@@ -185,6 +189,7 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
   return new SerialPort({
     path: _path !== undefined ? _path : "",
     baudRate: device === Devices.arduino ? 115200 : 9600,
+    autoOpen: false,
   });
 };
 
@@ -207,7 +212,9 @@ const startArduinoTest = (arduino: SerialPort, data: SessionSettingsModel) => {
   arduino.write(`<${data.iterations}> \n`);
   arduino.write(`<${data.force}> \n`);
   arduino.write(`<${data.push ? 1 : 2}> \n`);
-  arduino.write(`<${(537.7 / 3) * data.stroke}>`);
+  arduino.write(`<${(537.7 / 3) * data.stroke}>`, function (err: any) {
+    if (err) console.log(err);
+  });
 
   console.log("Send Data from GUI - ", data);
 };
