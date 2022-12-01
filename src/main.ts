@@ -5,6 +5,7 @@ const isDev = require("electron-is-dev");
 import { SerialPort } from "serialport";
 import { SessionSettingsModel, SummaryPanelData } from "./Models/types";
 import { ServerOptions } from "socket.io";
+import { handleSerialCommunication } from "./utils/SerialCommunication";
 
 function createWindow() {
   // Create the browser window.
@@ -25,6 +26,9 @@ function createWindow() {
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }
+
+  handleSerialCommunication(mainWindow);
+  /*
 
   let startTest: boolean = false;
   let iterationsPreformed: number = 0;
@@ -147,6 +151,7 @@ function createWindow() {
     }
     return connection;
   });
+  */
 }
 
 interface SerialPortData {
@@ -154,10 +159,7 @@ interface SerialPortData {
   pnpId: string;
   manufacturer: string;
 }
-interface DevicesPaths {
-  arduinoPath: string | undefined;
-  LARITPath: string | undefined;
-}
+
 enum Devices {
   arduino = "arduino",
   LARIT = "LARIT",
