@@ -123,7 +123,7 @@ function createWindow() {
     LARIT.on("data", function (data: Buffer) {
       const formattedData: string = data.toString("utf8").slice(0, -3);
       let sensorValue = parseFloat(formattedData);
-      samples.push(sensorValue);
+      samples.push(sensorValue * -1);
       // console.log("Data:", sensorValue);
       // console.log("Data:", startTest);
 

@@ -38,9 +38,17 @@ const SummaryModel = (props: {
 
   const date = new Date();
 
+  let _lineChartData: number[] = [];
+  props.data?.lineChartData.map((value, index) =>
+    value > 0 ? _lineChartData.push(value) : ""
+  );
+  // props.data?.lineChartData.map((value, index) =>
+  //   index % 100 === 0 ? _lineChartData.push(value) : ""
+  // );
+
   // const _lineChartData: number[] = props.data?.lineChartData ?? [];
-  const _lineChartData: number[] =
-    Array.from({ length: 40 }, () => Math.floor(Math.random() * 40 - 20)) ?? [];
+  // const _lineChartData: number[] =
+  //   Array.from({ length: 40 }, () => Math.floor(Math.random() * 40 - 20)) ?? [];
 
   const chartSeriesData: ApexAxisChartSeries = [
     // { name: "sensorValue", data: [0, 5, 1, 4] },
@@ -129,7 +137,7 @@ const SummaryModel = (props: {
     annotations: {
       yaxis: [
         {
-          y: 15,
+          y: props.data?.sessionSettings.force,
           borderColor: "#f08901",
           label: {
             borderColor: "#f08901",
@@ -137,7 +145,7 @@ const SummaryModel = (props: {
               color: "#fff",
               background: "#f08901",
             },
-            text: "Force target: " + "15",
+            text: "Force target: " + props.data?.sessionSettings.force,
           },
         },
       ],
