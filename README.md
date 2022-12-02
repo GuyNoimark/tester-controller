@@ -18,7 +18,7 @@
 
 </div>
 
-## :bookmark_tabs: Menu
+<!-- ## :bookmark_tabs: Menu
 
 - [Overview](#scroll-overview)
 - [Screenshot](#rice_scene-screenshot)
@@ -30,7 +30,7 @@
   - [Folder Structure](#open_file_folder-folder-structure)
 - [Release History](#gift-release-history)
 - [License](#memo-license)
-- [Author](#smiley_cat-author)
+- [Author](#smiley_cat-author) -->
 
 ## :scroll: Overview
 
@@ -95,7 +95,7 @@ TBD
 
 The [MIT License]() (MIT)
 
-## :smiley_cat: Authors
+## :email: Authors
 
 - [@TomBavarsky](https://github.com/tombavarsky)
 - [@GuyNoimark](https://github.com/GuyNoimark)
