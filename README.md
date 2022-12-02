@@ -1,46 +1,101 @@
-# Getting Started with Create React App
+<div align="center">
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<img src="assets/logos/ItamarFavicon-2.png" alt="drawing" width="100"/>
 
-## Available Scripts
+# QA Force Tester User Interface
 
-In the project directory, you can run:
+<!-- ![Badge](https://img.shields.io/badge/badge-badge-brightgreen)
+![Badge](https://img.shields.io/badge/badge-badge-brightgreen)
+![Badge](https://img.shields.io/badge/badge-badge-brightgreen) -->
 
-### `npm start`
+[Overview](#scroll-overview)
+•
+[Screenshot](#rice_scene-screenshot)
+•
+[Demo](#dvd-demo)
+•
+[Documentation](#blue_book-documentation)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+</div>
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## :bookmark_tabs: Menu
 
-### `npm test`
+- [Overview](#scroll-overview)
+- [Screenshot](#rice_scene-screenshot)
+- [Demo](#dvd-demo)
+- [Documentation](#blue_book-documentation)
+- [Requirements](#exclamation-requirements)
+- [Installation and usage](#floppy_disk-installation-and-usage)
+  - [Dependencies and libs](#heavy_check_mark-dependencies-and-libs)
+  - [Folder Structure](#open_file_folder-folder-structure)
+- [Release History](#gift-release-history)
+- [License](#memo-license)
+- [Author](#smiley_cat-author)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## :scroll: Overview
 
-### `npm run build`
+This project was created for a QA operation testing at "Itamar Medical".
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The project enables communication and visualization with 2 serial devices (Arduino, and a digital force gauge). The end goal is to produce a friendly user interface which every one can operate
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## :computer: Screenshot
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![Logo](assets/screenshots/mockup1.jpg)
 
-### `npm run eject`
+## :dvd: Demo
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+TODO
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+<!-- Add a GID -->
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## :exclamation: Requirements
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- [Node.js](https://nodejs.org/en/download/)
 
-## Learn More
+## :floppy_disk: Installation and usage
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+$ git clone https://github.com/GuyNoimark/tester-controller
+$ cd tester-controller/src
+$ npm run start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+<!--
+### :rotating_light: Tests
+
+```
+$ npm run test
+``` -->
+
+### :heavy_check_mark: Dependencies and libs
+
+- [React](https://reactjs.org/)
+- [Electron](https://www.electronjs.org/)
+- [SerialPort](https://serialport.io/)
+
+### :open_file_folder: Folder Structure
+
+```
+.
+├── assets        # Assets for the project
+├── src           # Project source code
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+## :gift: Release History
+
+TBD
+
+- 0.0.0
+  - Init the project
+
+## :memo: License
+
+The [MIT License]() (MIT)
+
+## :smiley_cat: Authors
+
+- [@TomBavarsky](https://github.com/tombavarsky)
+- [@GuyNoimark](https://github.com/GuyNoimark)
