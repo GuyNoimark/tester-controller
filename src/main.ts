@@ -20,7 +20,7 @@ function createWindow() {
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
   mainWindow.setFullScreen(true);
-  // mainWindow.setMenuBarVisibility(false);
+  mainWindow.setMenuBarVisibility(false);
   if (isDev) {
     mainWindow.webContents.openDevTools();
   }

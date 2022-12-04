@@ -2,6 +2,8 @@
   "name": "tester-controller",
   "version": "0.1.0",
   "private": true,
+  "authors": "Guy",
+  "description": "test",
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "@testing-library/jest-dom": "^5.16.5",
@@ -15,6 +17,7 @@
     "browser-serialport": "^2.1.0",
     "cross-env": "^7.0.3",
     "electron-is-dev": "^2.0.0",
+    "electron-squirrel-startup": "^1.0.0",
     "express": "^4.18.2",
     "file-saver": "^2.0.5",
     "html-to-image": "^1.10.8",
@@ -42,7 +45,10 @@
     "electron-build": "electron-builder",
     "build": "npm run react-build && npm run electron-build",
     "build-ts": "tsc src/main.ts",
-    "start": "npm run build-ts && concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\""
+    "start": "npm run build-ts && concurrently \"cross-env BROWSER=none npm run react-start\" \"wait-on http://localhost:3000 && electron .\"",
+    "start-electron-forge": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "npm run build-ts && react-scripts build && electron-forge make"
   },
   "eslintConfig": {
     "extends": [
@@ -63,12 +69,16 @@
     ]
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
     "@types/electron": "^1.6.10",
     "@types/file-saver": "^2.0.5",
     "@types/react-flexr": "^2.0.12",
     "concurrently": "^7.5.0",
     "electron": "^21.2.3",
-    "electron-builder": "^23.6.0",
     "typescript": "^4.9.3",
     "wait-on": "^6.0.1"
   }
