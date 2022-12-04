@@ -28,7 +28,7 @@ const ChartPanel = (props: { forceTarget: number }) => {
       removeEventListener();
     };
     // window.electronAPI.removeSensorListener(() => {});
-  });
+  }, []);
 
   return (
     <>

@@ -124,7 +124,7 @@ function App() {
     return () => {
       removeEventListenerGetProgress();
     };
-  });
+  }, []);
 
   const padding = 30;
   return (
