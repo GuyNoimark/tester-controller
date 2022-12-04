@@ -16,7 +16,7 @@ import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import Chart from "react-apexcharts";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
-import { convertSecondsToISO } from "../utils/utils";
+import { convertSecondsToISO, movingAverage } from "../utils/utils";
 import * as htmlToImage from "html-to-image";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 import { saveAs } from "file-saver";
@@ -38,10 +38,13 @@ const SummaryModel = (props: {
 
   const date = new Date();
 
+  let _csvChartData = props.data?.lineChartData;
+
   let _lineChartData: number[] = [];
-  props.data?.lineChartData.map((value, index) =>
+  props.data?.lineChartData.map((value: any, index: any) =>
     value > 0 ? _lineChartData.push(value) : ""
   );
+  _lineChartData = movingAverage(_lineChartData, 15);
   // props.data?.lineChartData.map((value, index) =>
   //   index % 100 === 0 ? _lineChartData.push(value) : ""
   // );
@@ -57,12 +60,19 @@ const SummaryModel = (props: {
     },
   ];
 
-  const lowestValue = Math.min(..._lineChartData);
-  const maxValue = Math.max(..._lineChartData);
-
-  // console.log(maxValue);
-
   const getIndex = (value: number): number => _lineChartData.indexOf(value);
+  const lowestValue = Math.min(..._lineChartData);
+  const maxValue: number = Math.max(..._lineChartData);
+  const realMaxValue: number = Math.max(..._csvChartData!);
+  const maxValueIndex: number = getIndex(maxValue);
+
+  // console.log(
+  //   _csvChartData?.filter(
+  //     (number) => number > props.data!.sessionSettings.force
+  //   )
+  // );
+
+  // console.log(maxValueIndex, maxValue);
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
@@ -74,29 +84,29 @@ const SummaryModel = (props: {
           speed: 10,
         },
       },
-      events: {
-        // mounted: function (chartContext, config) {
-        //   const lowest = chartContext.getLowestValueInSeries(0);
-        //   const highest = chartContext.getHighestValueInSeries(0);
-        //   const getIndex = (value: number): number => chartSeriesData[0].data.indexOf(value);
-        // const lowestValue = Math.min(...chartSeriesData);
-        // const maxValue = Math.max(...lineChartData);
-        //   const lowestValueIndex = getIndex(lowestValue);
-        //   const maxValueIndex = getIndex(maxValue);
-        //   chartContext.addPointAnnotation({
-        //     x: lowestValueIndex,
-        //     y: lowestValue,
-        //     label: {
-        //       text: "Lowest Force",
-        //       borderColor: "#FF4560",
-        //       style: {
-        //         color: "#fff",
-        //         background: "#FF4560",
-        //       },
-        //     },
-        //   });
-        // },
-      },
+      // events: {
+      //   mounted: function (chartContext, config) {
+      //     const lowest = chartContext.getLowestValueInSeries(0);
+      //     const highest = chartContext.getHighestValueInSeries(0);
+      //     // const lowestValue = Math.min(...chartSeriesData);
+      //     // const maxValue = Math.max(...lineChartData);
+      //     const highestValueIndex = getIndex(highest);
+      //     // const maxValueIndex = getIndex(maxValue);
+      //     console.log(highestValueIndex, highest);
+      //     chartContext.addPointAnnotation({
+      //       x: highestValueIndex,
+      //       y: highest,
+      //       label: {
+      //         text: "highest Force",
+      //         borderColor: "#FF4560",
+      //         style: {
+      //           color: "#fff",
+      //           background: "#FF4560",
+      //         },
+      //       },
+      //     });
+      //   },
+      // },
       toolbar: {
         show: true,
       },
@@ -118,7 +128,10 @@ const SummaryModel = (props: {
       labels: {
         show: true,
         rotate: 0,
+        hideOverlappingLabels: true,
+        style: { colors: "white" },
         formatter: function (val: string) {
+          return val;
           return +val % 10 === 0 ? val : "";
         },
       },
@@ -151,15 +164,19 @@ const SummaryModel = (props: {
       ],
       points: [
         {
-          x: maxValue,
-          y: getIndex(maxValue),
+          x: maxValueIndex,
+          // x: ,
+          // y: 12.13,
+          y: maxValue,
+          // x: maxValue,
+          // y: getIndex(maxValue),
           marker: {
             strokeColor: "#FF4560",
             // offsetX: 10,
           },
           seriesIndex: 0,
           label: {
-            text: "Max Force",
+            text: `Max Force ${realMaxValue}`,
             borderColor: "#FF4560",
             style: {
               color: "#fff",
@@ -167,23 +184,23 @@ const SummaryModel = (props: {
             },
           },
         },
-        {
-          x: lowestValue,
-          y: getIndex(lowestValue),
-          marker: {
-            strokeColor: "#775dd0",
-            // offsetX: 10,
-          },
-          seriesIndex: 0,
-          label: {
-            text: "Min Force",
-            borderColor: "#775dd0",
-            style: {
-              color: "#fff",
-              background: "#775dd0",
-            },
-          },
-        },
+        // {
+        //   x: lowestValue,
+        //   y: getIndex(lowestValue),
+        //   marker: {
+        //     strokeColor: "#775dd0",
+        //     // offsetX: 10,
+        //   },
+        //   seriesIndex: 0,
+        //   label: {
+        //     text: "Min Force",
+        //     borderColor: "#775dd0",
+        //     style: {
+        //       color: "#fff",
+        //       background: "#775dd0",
+        //     },
+        //   },
+        // },
       ],
     },
   };
@@ -215,7 +232,7 @@ const SummaryModel = (props: {
 
                     if (saveOptions === SaveOptions.SAVE_AS_CSV) {
                       const blob = new Blob(
-                        _lineChartData.map((value) =>
+                        _csvChartData?.map((value) =>
                           value.toString().concat(",\n")
                         ),
                         {

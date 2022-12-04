@@ -62,8 +62,9 @@ function createWindow() {
   const sendSummary = (): SummaryPanelData => {
     const endOfTestTime = new Date().getTime();
     const timeElapsedInSeconds = (endOfTestTime - startTestTime) / 1000;
+
     return {
-      lineChartData: samples,
+      lineChartData: samples.splice(0, samples.length),
       time: timeElapsedInSeconds,
       sessionSettings: settings,
     };
@@ -133,7 +134,7 @@ function createWindow() {
 
       if (startTest) {
         sendSensorValueToArduino(sensorValue, arduino);
-        if (samples.length % 100 === 0)
+        if (samples.length % 5 === 0)
           //Sends 1 sample ever 50 millis
           mainWindow.webContents.send("getSensorValue", sensorValue);
       }
