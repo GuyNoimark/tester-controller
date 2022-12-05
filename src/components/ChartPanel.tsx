@@ -76,7 +76,7 @@ const ChartPanel = (props: { forceTarget: number; pause: boolean }) => {
               display: true,
               beginAtZero: true,
               // steps: 10,
-              max: props.forceTarget + 5,
+              max: props.forceTarget !== 0 ? props.forceTarget + 5 : undefined,
               ticks: {
                 // stepValue: 5,
               },

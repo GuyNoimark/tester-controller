@@ -109,7 +109,6 @@ function App() {
 
         if ((value / iterations) * 100 === 100) {
           window.electronAPI.stopTest();
-          setForceTarget(0);
 
           const getSummary = async () => await window.electronAPI.getSummary();
           getSummary().then((response: SummaryPanelData) => {
@@ -117,8 +116,8 @@ function App() {
             console.log(response);
             setOpenSummaryModal(true);
             setResetSettingsPanel(false);
+            setForceTarget(0);
             setStartTest(false);
-
             // const interval = setInterval(function () {
             //   clearInterval(interval);
             // }, 1000);

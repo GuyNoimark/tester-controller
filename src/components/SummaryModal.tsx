@@ -41,10 +41,44 @@ const SummaryModel = (props: {
   let _csvChartData = props.data?.lineChartData;
 
   let _lineChartData: number[] = [];
+
+  const positiveValuesCount: number =
+    props.data?.lineChartData.filter((value) => value > 0).length ?? 0;
+
+  const samplesPerRepetition =
+    positiveValuesCount / props.data?.sessionSettings.iterations!;
+
+  console.log(positiveValuesCount, samplesPerRepetition);
+
   props.data?.lineChartData.map((value: any, index: any) =>
     value > 0 ? _lineChartData.push(value) : ""
   );
-  _lineChartData = movingAverage(_lineChartData, 15);
+
+  const getIndex = (value: number): number => _lineChartData.indexOf(value);
+  const lowestValue = Math.min(..._lineChartData);
+  const maxValue: number = Math.max(..._lineChartData);
+  const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
+  const maxValueIndex: number = getIndex(maxValue);
+
+  const repNumberToView = 6;
+  const rangeToView = repNumberToView * samplesPerRepetition;
+
+  const startOfRange =
+    maxValueIndex - samplesPerRepetition * (repNumberToView / 2);
+  const endOfRange =
+    maxValueIndex + samplesPerRepetition * (repNumberToView / 2);
+
+  let wantedRange = _lineChartData.slice(
+    startOfRange >= 0 ? startOfRange : 0,
+    endOfRange <= _lineChartData.length ? endOfRange : _lineChartData.length
+  );
+
+  // wantedRange = movingAverage(wantedRange, 15);
+
+  console.log(startOfRange, maxValueIndex, endOfRange);
+  console.log(samplesPerRepetition);
+  // console.log(wantedRange);
+
   // props.data?.lineChartData.map((value, index) =>
   //   index % 100 === 0 ? _lineChartData.push(value) : ""
   // );
@@ -56,15 +90,9 @@ const SummaryModel = (props: {
   const chartSeriesData: ApexAxisChartSeries = [
     // { name: "sensorValue", data: [0, 5, 1, 4] },
     {
-      data: _lineChartData,
+      data: wantedRange,
     },
   ];
-
-  const getIndex = (value: number): number => _lineChartData.indexOf(value);
-  const lowestValue = Math.min(..._lineChartData);
-  const maxValue: number = Math.max(..._lineChartData);
-  const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
-  const maxValueIndex: number = getIndex(maxValue);
 
   // console.log(
   //   _csvChartData?.filter(
@@ -216,6 +244,7 @@ const SummaryModel = (props: {
         keyboard={false}
         className="summaryModal"
         id={"screenshotArea"}
+        // onEntered={() => setTimeout(() => {}, 2000)}
       >
         <Modal.Header closeButton={false}>
           <Modal.Title>
