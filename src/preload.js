@@ -12,9 +12,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     getSensorValue: (sensorCallback) => {
         ipcRenderer.on('getSensorValue', sensorCallback);
-        return () => {
-            ipcRenderer.removeListener('getSensorValue', sensorCallback);
-        };
+        // return () => {
+        //     ipcRenderer.removeListener('getSensorValue', sensorCallback);
+        // };
     },
     getProgress: (progressCallback) => {
         ipcRenderer.on('setProgress', progressCallback);

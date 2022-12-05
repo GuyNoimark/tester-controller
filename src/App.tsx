@@ -68,6 +68,8 @@ function App() {
     ERROR,
   }
 
+  useEffect(() => console.log("render"));
+
   const getProgress = async () => await window.electronAPI.getSerialPorts();
 
   useEffect(() => {
@@ -103,6 +105,7 @@ function App() {
     const removeEventListenerGetProgress = window.electronAPI.getProgress(
       (event: any, value: number) => {
         setProgressValue((value / iterations) * 100);
+
         if ((value / iterations) * 100 === 100) {
           window.electronAPI.stopTest();
           setForceTarget(1000);
@@ -124,7 +127,7 @@ function App() {
     return () => {
       removeEventListenerGetProgress();
     };
-  }, []);
+  });
 
   const padding = 30;
   return (

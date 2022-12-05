@@ -63,7 +63,7 @@ const SummaryModel = (props: {
   const getIndex = (value: number): number => _lineChartData.indexOf(value);
   const lowestValue = Math.min(..._lineChartData);
   const maxValue: number = Math.max(..._lineChartData);
-  const realMaxValue: number = Math.max(..._csvChartData!);
+  const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
   const maxValueIndex: number = getIndex(maxValue);
 
   // console.log(
@@ -76,7 +76,7 @@ const SummaryModel = (props: {
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
-      id: "realtime",
+      id: "summary",
       animations: {
         enabled: true,
         easing: "linear",
@@ -220,8 +220,8 @@ const SummaryModel = (props: {
         <Modal.Header closeButton={false}>
           <Modal.Title>
             <FlexboxGrid justify="space-between" align="middle">
-              Test Summary {date.toLocaleDateString()}{" "}
-              {date.toLocaleTimeString().slice(0, -3)}
+              Test Summary {date.toLocaleDateString("en-GB")}{" "}
+              {date.toLocaleTimeString("en-GB").slice(0, -3)}
               <ButtonToolbar>
                 <SplitButton
                   onClick={(saveOptions: SaveOptions) => {
