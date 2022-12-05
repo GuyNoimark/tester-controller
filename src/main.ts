@@ -131,10 +131,10 @@ function createWindow() {
       samples.push(sensorValue * -1);
       // console.log("Data:", sensorValue);
       // console.log("Data:", startTest);
-      mainWindow.webContents.send("getSensorValue", sensorValue);
 
       if (startTest) {
         sendSensorValueToArduino(sensorValue, arduino);
+        mainWindow.webContents.send("getSensorValue", sensorValue);
         // if (samples.length % 100 === 0) {
         //Sends 1 sample ever 50 millis
         // }

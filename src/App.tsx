@@ -46,7 +46,7 @@ function App() {
   const [show, setShow] = React.useState(true);
   const onChange = () => setShow(!show);
 
-  const [forceTarget, setForceTarget] = useState(1000);
+  const [forceTarget, setForceTarget] = useState(0);
   const [iterations, setIterations] = useState(0);
   const [progressValue, setProgressValue] = useState(0);
 
@@ -60,6 +60,7 @@ function App() {
   const [openSummaryModal, setOpenSummaryModal] = useState(false);
   const [summaryData, setSummaryData] = useState<SummaryPanelData>();
 
+  const [startTest, setStartTest] = useState(false);
   enum AppState {
     CONFIGURE,
     IN_TEST,
@@ -108,7 +109,7 @@ function App() {
 
         if ((value / iterations) * 100 === 100) {
           window.electronAPI.stopTest();
-          setForceTarget(1000);
+          setForceTarget(0);
 
           const getSummary = async () => await window.electronAPI.getSummary();
           getSummary().then((response: SummaryPanelData) => {
@@ -116,6 +117,7 @@ function App() {
             console.log(response);
             setOpenSummaryModal(true);
             setResetSettingsPanel(false);
+            setStartTest(false);
 
             // const interval = setInterval(function () {
             //   clearInterval(interval);
@@ -161,13 +163,15 @@ function App() {
                     resetForm={resetSettingsPanel}
                     onClickStop={() => {
                       window.electronAPI.stopTest();
-                      setForceTarget(1000);
+                      setForceTarget(0);
                       setProgressValue(0);
                       setResetSettingsPanel(true);
+                      setStartTest(false);
                     }}
                     onClickStart={(formData) => {
                       setForceTarget(formData.force);
                       setIterations(formData.iterations);
+                      setStartTest(true);
                       window.electronAPI.writeArduino(formData);
                     }}
                   ></SessionInput>
@@ -213,7 +217,10 @@ function App() {
                 >
                   <Row>
                     <DashboardPanel disabled={false}>
-                      <ChartPanel forceTarget={forceTarget} />
+                      <ChartPanel
+                        forceTarget={forceTarget}
+                        pause={!startTest}
+                      />
                     </DashboardPanel>
                   </Row>
                   {/* <Row gutter={padding}>
