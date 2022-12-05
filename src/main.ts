@@ -131,8 +131,8 @@ function createWindow() {
       samples.push(sensorValue * -1);
       // console.log("Data:", sensorValue);
       // console.log("Data:", startTest);
-
       mainWindow.webContents.send("getSensorValue", sensorValue);
+
       if (startTest) {
         sendSensorValueToArduino(sensorValue, arduino);
         // if (samples.length % 100 === 0) {

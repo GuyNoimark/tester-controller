@@ -7,7 +7,6 @@ import ChartStreamingPlugin from "chartjs-plugin-streaming";
 import "chartjs-adapter-moment";
 
 import { Chart, registerables } from "chart.js";
-import console from "console";
 Chart.register(...registerables);
 Chart.register(ChartStreamingPlugin);
 
@@ -39,21 +38,21 @@ const ChartPanel = (props: { forceTarget: number }) => {
 
   useEffect(() => {
     window.electronAPI.getSensorValue((event: any, value: number) => {
-      newValue = value;
       console.log(value);
+      newValue = value;
     });
   }, []);
 
   // useEffect(() => console.log("chart renderd"));
 
-  // const onRefresh = (chart: any): void => {
-  //   const now: number = Date.now();
+  const onRefresh = (chart: any): void => {
+    const now: number = Date.now();
 
-  //   chart.data.datasets[0].data.push({
-  //     x: now,
-  //     y: newValue,
-  //   });
-  // };
+    chart.data.datasets[0].data.push({
+      x: now,
+      y: 5,
+    });
+  };
 
   // useEffect(() => {
   //   window.electronAPI.getSensorValue((event: any, value: number) => {
@@ -82,25 +81,25 @@ const ChartPanel = (props: { forceTarget: number }) => {
       <Line
         data={data}
         options={{
-          // animation: false,
-          // plugins: {
-          //   streaming: {
-          //     frameRate: 60,
-          //   },
-          // },
+          animation: false,
+          plugins: {
+            streaming: {
+              frameRate: 60,
+            },
+          },
 
           // interaction: {
           //   intersect: false,
           // },
           scales: {
             x: {
-              // type: "realtime",
-              // realtime: {
-              //   duration: 5000,
-              //   refresh: 10,
-              // delay: 0,
-              // onRefresh: onRefresh,
-              // },
+              type: "realtime",
+              realtime: {
+                duration: 5000,
+                refresh: 10,
+                delay: 0,
+                onRefresh: onRefresh,
+              },
             },
           },
         }}
