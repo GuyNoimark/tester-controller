@@ -35,6 +35,10 @@ const SummaryModel = (props: {
   const [open, setOpen] = useState(props.open);
 
   useEffect(() => setOpen(props.open), [props.open]);
+  useEffect(() => {
+    const renderTime = new Date();
+    console.log(renderTime.getMilliseconds());
+  }, []);
 
   const date = new Date();
 
@@ -44,11 +48,9 @@ const SummaryModel = (props: {
 
   const positiveValuesCount: number =
     props.data?.lineChartData.filter((value) => value > 0).length ?? 0;
-
-  const samplesPerRepetition =
-    positiveValuesCount / props.data?.sessionSettings.iterations!;
-
-  console.log(positiveValuesCount, samplesPerRepetition);
+  const samplesPerRepetition: number = +(
+    positiveValuesCount / props.data?.sessionSettings.iterations!
+  ).toFixed(0);
 
   props.data?.lineChartData.map((value: any, index: any) =>
     value > 0 ? _lineChartData.push(value) : ""
@@ -60,23 +62,32 @@ const SummaryModel = (props: {
   const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
   const maxValueIndex: number = getIndex(maxValue);
 
-  const repNumberToView = 6;
+  const repNumberToView = 10;
   const rangeToView = repNumberToView * samplesPerRepetition;
 
-  const startOfRange =
+  let startOfRange =
     maxValueIndex - samplesPerRepetition * (repNumberToView / 2);
-  const endOfRange =
-    maxValueIndex + samplesPerRepetition * (repNumberToView / 2);
+  let endOfRange = maxValueIndex + samplesPerRepetition * (repNumberToView / 2);
 
-  let wantedRange = _lineChartData.slice(
-    startOfRange >= 0 ? startOfRange : 0,
-    endOfRange <= _lineChartData.length ? endOfRange : _lineChartData.length
-  );
+  if (startOfRange < 0) {
+    endOfRange += Math.abs(startOfRange);
+    startOfRange = 0;
+  } else if (endOfRange > _lineChartData.length) {
+    startOfRange -= endOfRange - _lineChartData.length;
+    endOfRange = _lineChartData.length;
+  }
 
-  // wantedRange = movingAverage(wantedRange, 15);
+  let wantedRange = _lineChartData.slice(startOfRange, endOfRange);
 
-  console.log(startOfRange, maxValueIndex, endOfRange);
-  console.log(samplesPerRepetition);
+  wantedRange = movingAverage(wantedRange, 15);
+
+  console.log({
+    start: startOfRange,
+    end: endOfRange,
+    maxValueIndex: maxValueIndex,
+    samplesPer: samplesPerRepetition,
+  });
+  // console.log(samplesPerRepetition);
   // console.log(wantedRange);
 
   // props.data?.lineChartData.map((value, index) =>
@@ -112,29 +123,6 @@ const SummaryModel = (props: {
           speed: 10,
         },
       },
-      // events: {
-      //   mounted: function (chartContext, config) {
-      //     const lowest = chartContext.getLowestValueInSeries(0);
-      //     const highest = chartContext.getHighestValueInSeries(0);
-      //     // const lowestValue = Math.min(...chartSeriesData);
-      //     // const maxValue = Math.max(...lineChartData);
-      //     const highestValueIndex = getIndex(highest);
-      //     // const maxValueIndex = getIndex(maxValue);
-      //     console.log(highestValueIndex, highest);
-      //     chartContext.addPointAnnotation({
-      //       x: highestValueIndex,
-      //       y: highest,
-      //       label: {
-      //         text: "highest Force",
-      //         borderColor: "#FF4560",
-      //         style: {
-      //           color: "#fff",
-      //           background: "#FF4560",
-      //         },
-      //       },
-      //     });
-      //   },
-      // },
       toolbar: {
         show: true,
       },
@@ -146,6 +134,16 @@ const SummaryModel = (props: {
       // curve: "straight",
       //   curve: "stepline",
       curve: "smooth",
+    },
+    title: {
+      text: `Shows ${repNumberToView} cycles (Out of ${props.data?.sessionSettings.iterations})`,
+      align: "left",
+      style: {
+        fontSize: "12px",
+        fontWeight: 200,
+        fontFamily: undefined,
+        color: "#868686",
+      },
     },
     xaxis: {
       axisTicks: {
@@ -192,7 +190,7 @@ const SummaryModel = (props: {
       ],
       points: [
         {
-          x: maxValueIndex,
+          x: maxValueIndex - startOfRange,
           // x: ,
           // y: 12.13,
           y: maxValue,
