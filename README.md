@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/logos/ItamarFavicon-2.png" alt="drawing" width="100"/>
+<img src="src/assets/logos/ItamarFavicon-2.png" alt="drawing" width="100"/>
 
 # QA Force Tester User Interface
 

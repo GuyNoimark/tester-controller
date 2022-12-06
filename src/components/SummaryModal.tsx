@@ -21,6 +21,7 @@ import * as htmlToImage from "html-to-image";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 import { saveAs } from "file-saver";
 import { useUpdateEffect } from "rsuite/esm/utils";
+import ItamarLogo from "../assets/logos/ItamarFavicon-2.png";
 const FileSaver = require("file-saver");
 
 const SummaryModel = (props: {
@@ -247,8 +248,13 @@ const SummaryModel = (props: {
         <Modal.Header closeButton={false}>
           <Modal.Title>
             <FlexboxGrid justify="space-between" align="middle">
-              Test Summary {date.toLocaleDateString("en-GB")}{" "}
-              {date.toLocaleTimeString("en-GB").slice(0, -3)}
+              <Stack spacing={10}>
+                <div style={{ width: 20 }}></div>
+                <img src={ItamarLogo} width={30} />
+                {`Test Summary
+                ${date.toLocaleDateString("en-GB")}
+                ${date.toLocaleTimeString("en-GB").slice(0, -3)}`}
+              </Stack>
               <ButtonToolbar>
                 <SplitButton
                   onClick={(saveOptions: SaveOptions) => {
