@@ -55,7 +55,7 @@ function createWindow() {
       realForceCounter = 0;
     }
 
-    arduino.write(Buffer.from(sensorValue.toString()), function (err: any) {
+    arduino.write(sensorValue.toString(), function (err: any) {
       if (err) raiseErrorOnRenderer(err.message, Devices.arduino);
     });
   };

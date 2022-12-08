@@ -16,7 +16,7 @@ import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import Chart from "react-apexcharts";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
-import { convertSecondsToISO, movingAverage } from "../utils/utils";
+import { convertSecondsToISO, findSpikes, movingAverage } from "../utils/utils";
 import * as htmlToImage from "html-to-image";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 import { saveAs } from "file-saver";
@@ -82,12 +82,19 @@ const SummaryModel = (props: {
 
   wantedRange = movingAverage(wantedRange, 15);
 
-  console.log({
-    start: startOfRange,
-    end: endOfRange,
-    maxValueIndex: maxValueIndex,
-    samplesPer: samplesPerRepetition,
-  });
+  // console.log({
+  //   start: startOfRange,
+  //   end: endOfRange,
+  //   maxValueIndex: maxValueIndex,
+  //   samplesPer: samplesPerRepetition,
+  // });
+  const spikes: number[][] = findSpikes(_csvChartData ?? []);
+  const maxValuesInSpikes = spikes.map((spike: number[]) => Math.max(...spike));
+  const averageForce =
+    maxValuesInSpikes.reduce((prev, curr) => prev + curr) /
+    maxValuesInSpikes.length;
+
+  console.log(maxValuesInSpikes.length, averageForce);
 
   // const spike = _csvChartData?.reduce((resultArray, item, index) => {
   //   item > 0 ? _csvChartData?.findIndex((val) => val ===0 )
@@ -355,8 +362,15 @@ const SummaryModel = (props: {
                     color: "white",
                   }}
                 >
-                  ERROR
-                  <h2>+/-5</h2>
+                  AVERAGE FORCE
+                  <h2>{averageForce.toFixed(2)}</h2>
+                  {/* DEVICE ERROR
+                  <h2>
+                    ±
+                    {(
+                      averageForce - props.data?.sessionSettings.force!
+                    ).toFixed(2)}
+                  </h2> */}
                 </DashboardPanel>
               </Col>
               <Col md={6}>
