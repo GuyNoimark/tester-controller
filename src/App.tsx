@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+import ItamarLogo from ".//assets/logos/ItamarFavicon-2.png";
 import {
   Button,
   CustomProvider,
@@ -138,6 +138,8 @@ function App() {
         style={{
           textAlign: "center",
           padding: defaultPadding,
+          // background:
+          //   "linear-gradient(87deg, rgba(2,0,36,1) 0%, rgba(7,71,114,1) 35%, rgba(8,162,155,1) 100%)",
         }}
       >
         {/* <ButtonToolbar>
@@ -151,78 +153,84 @@ function App() {
         {/* <Divider></Divider> */}
         <div>
           <Grid fluid>
-            <Row gutter={padding}>
-              <Col md={6}>
-                <Stack
-                  direction="column"
-                  spacing={padding}
-                  alignItems="stretch"
-                >
-                  <SessionInput
-                    resetForm={resetSettingsPanel}
-                    onClickStop={() => {
-                      window.electronAPI.stopTest();
-                      setForceTarget(0);
-                      setProgressValue(0);
-                      setResetSettingsPanel(true);
-                      setStartTest(false);
-                    }}
-                    onClickStart={(formData) => {
-                      setForceTarget(formData.force);
-                      setIterations(formData.iterations);
-                      setStartTest(true);
-                      window.electronAPI.writeArduino(formData);
-                    }}
-                  ></SessionInput>
-
-                  <Panel
-                    header={
-                      <Progress.Line
-                        percent={+progressValue.toFixed(0)}
-                        status="active"
-                      />
-                    }
-                    shaded
-                    bordered
-                    collapsible
+            <Stack direction="column" spacing={padding} alignItems="stretch">
+              <DashboardPanel>
+                <img src={ItamarLogo} width={50} />
+              </DashboardPanel>
+              <Row gutter={padding}>
+                <Col md={6}>
+                  <Stack
+                    direction="column"
+                    spacing={padding}
+                    alignItems="stretch"
                   >
-                    <Stack
-                      direction="column"
-                      spacing={padding}
-                      alignItems="stretch"
+                    <SessionInput
+                      resetForm={resetSettingsPanel}
+                      onClickStop={() => {
+                        window.electronAPI.stopTest();
+                        setForceTarget(0);
+                        setProgressValue(0);
+                        setResetSettingsPanel(true);
+                        setStartTest(false);
+                      }}
+                      onClickStart={(formData) => {
+                        setForceTarget(formData.force);
+                        setIterations(formData.iterations);
+                        setStartTest(true);
+                        window.electronAPI.writeArduino(formData);
+                      }}
+                    ></SessionInput>
+
+                    <Panel
+                      header={
+                        <Progress.Line
+                          percent={+progressValue.toFixed(0)}
+                          status="active"
+                        />
+                      }
+                      shaded
+                      bordered
+                      collapsible
                     >
-                      <Timeline>
-                        <Timeline.Item>16:27:41 Session Started</Timeline.Item>
-                        <Timeline.Item>16:28:43 50% Done</Timeline.Item>
-                        <Timeline.Item>
-                          16:28:45 Test results available
-                        </Timeline.Item>
-                        <Timeline.Item>
-                          02:34:41 Send to Shanghai Hongkou Company
-                        </Timeline.Item>
-                        <Timeline.Item>
-                          15:05:29 Sending you a piece
-                        </Timeline.Item>
-                      </Timeline>
-                    </Stack>
-                  </Panel>
-                </Stack>
-              </Col>
-              <Col md={18}>
-                <Stack
-                  spacing={padding}
-                  direction="column"
-                  alignItems="stretch"
-                >
-                  <Row>
-                    <DashboardPanel disabled={false}>
-                      <ChartPanel
-                        forceTarget={forceTarget}
-                        pause={!startTest}
-                      />
-                    </DashboardPanel>
-                  </Row>
-                  {/* <Row gutter={padding}>
+                      <Stack
+                        direction="column"
+                        spacing={padding}
+                        alignItems="stretch"
+                      >
+                        <Timeline>
+                          <Timeline.Item>
+                            16:27:41 Session Started
+                          </Timeline.Item>
+                          <Timeline.Item>16:28:43 50% Done</Timeline.Item>
+                          <Timeline.Item>
+                            16:28:45 Test results available
+                          </Timeline.Item>
+                          <Timeline.Item>
+                            02:34:41 Send to Shanghai Hongkou Company
+                          </Timeline.Item>
+                          <Timeline.Item>
+                            15:05:29 Sending you a piece
+                          </Timeline.Item>
+                        </Timeline>
+                      </Stack>
+                    </Panel>
+                  </Stack>
+                </Col>
+                <Col md={18}>
+                  <Stack
+                    spacing={padding}
+                    direction="column"
+                    alignItems="stretch"
+                  >
+                    <Row>
+                      <DashboardPanel disabled={false}>
+                        <ChartPanel
+                          forceTarget={forceTarget}
+                          pause={!startTest}
+                        />
+                      </DashboardPanel>
+                    </Row>
+                    {/* <Row gutter={padding}>
                     <Col md={12}>
                       <DashboardPanel header="TEST">HI</DashboardPanel>
                     </Col>
@@ -241,9 +249,10 @@ function App() {
                       </Panel>
                     </Col>
                   </Row> */}
-                </Stack>
-              </Col>
-            </Row>
+                  </Stack>
+                </Col>
+              </Row>
+            </Stack>
           </Grid>
           <SummaryModal
             data={summaryData}

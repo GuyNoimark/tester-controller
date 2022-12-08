@@ -88,6 +88,12 @@ const SummaryModel = (props: {
     maxValueIndex: maxValueIndex,
     samplesPer: samplesPerRepetition,
   });
+
+  // const spike = _csvChartData?.reduce((resultArray, item, index) => {
+  //   item > 0 ? _csvChartData?.findIndex((val) => val ===0 )
+
+  //   return resultArray;
+  // }, []);
   // console.log(samplesPerRepetition);
   // console.log(wantedRange);
 

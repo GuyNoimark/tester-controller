@@ -54,7 +54,8 @@ function createWindow() {
     } else {
       realForceCounter = 0;
     }
-    arduino.write(sensorValue.toString(), function (err: any) {
+
+    arduino.write(Buffer.from(sensorValue.toString()), function (err: any) {
       if (err) raiseErrorOnRenderer(err.message, Devices.arduino);
     });
   };
@@ -128,7 +129,9 @@ function createWindow() {
     LARIT.on("data", function (data: Buffer) {
       const formattedData: string = data.toString("utf8").slice(0, -3);
       let sensorValue = parseFloat(formattedData);
-      samples.push(sensorValue * -1);
+      samples.push(Math.abs(sensorValue));
+      // console.log(Buffer.from(sensorValue.toString(), "utf-8"));
+
       // console.log("Data:", sensorValue);
       // console.log("Data:", startTest);
 

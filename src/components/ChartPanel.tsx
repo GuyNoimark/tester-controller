@@ -31,7 +31,7 @@ let newValue = 0;
 const ChartPanel = (props: { forceTarget: number; pause: boolean }) => {
   useEffect(() => {
     window.electronAPI.getSensorValue((event: any, value: number) => {
-      newValue = value * -1;
+      newValue = Math.abs(value);
     });
   }, []);
 
