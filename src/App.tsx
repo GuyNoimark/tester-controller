@@ -71,8 +71,6 @@ function App() {
 
   useEffect(() => console.log("render"));
 
-  const getProgress = async () => await window.electronAPI.getSerialPorts();
-
   useEffect(() => {
     const getResponse = async () => await window.electronAPI.getSerialPorts();
     setTimeout(
@@ -100,7 +98,7 @@ function App() {
     return () => {
       removeEventListener();
     };
-  }, [getPorts]);
+  }, []);
 
   useEffect(() => {
     const removeEventListenerGetProgress = window.electronAPI.getProgress(
@@ -283,15 +281,18 @@ function App() {
             <Modal.Body>{errorMessage}</Modal.Body>
             <Modal.Footer>
               <Button
-                onClick={() => setGetPorts(true)}
+                // onClick={() => setGetPorts(true)}
+                onClick={() => {
+                  window.electronAPI.closeApp();
+                }}
                 appearance="primary"
                 color={"orange"}
                 style={{
                   background: "linear-gradient(87deg, #f5365c 0, #f56036 100%)",
                 }}
-                loading={getPorts}
+                // loading={getPorts}
               >
-                Try Again
+                Close{" "}
               </Button>
             </Modal.Footer>
           </Modal>

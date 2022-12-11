@@ -95,7 +95,7 @@ const SummaryModel = (props: {
     maxValuesInSpikes.reduce((prev, curr) => prev + curr, 0) /
     maxValuesInSpikes.length;
 
-  console.log(maxValuesInSpikes.length, averageForce);
+  console.log(maxValuesInSpikes.length, averageForce, maxValuesInSpikes);
 
   // const spike = _csvChartData?.reduce((resultArray, item, index) => {
   //   item > 0 ? _csvChartData?.findIndex((val) => val ===0 )

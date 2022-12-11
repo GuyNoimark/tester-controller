@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
     getSerialPorts: (message) => ipcRenderer.invoke('getSerialPorts', message),
     writeArduino: (data) => ipcRenderer.send('arduinoWrite', data),
+    closeApp: () => ipcRenderer.send('close-window'),
     readArduino: () => ipcRenderer.send('arduinoRead'),
     getErrors: (errorCallback) => {
         ipcRenderer.on('error', errorCallback);

@@ -29,7 +29,6 @@ export function findSpikes(arr: number[]): number[][] {
       smoothGraph[i + 2] === 0
     ) {
       spikeEndIndex = i;
-      console.log(arr.slice(spikeStartIndex, spikeEndIndex).length);
       spikes.push(arr.slice(spikeStartIndex, spikeEndIndex));
       spikeStartIndex = 0;
       spikeEndIndex = 0;

@@ -76,6 +76,11 @@ function createWindow() {
     //Send connection status to the renderer;
     ipcMain.handle("getSerialPorts", checkConnectionStatus);
 
+    ipcMain.on("close-window", () => {
+      console.log("Close");
+      mainWindow.close();
+    });
+
     const arduino = await getSerialPortDevice(Devices.arduino);
     const LARIT = await getSerialPortDevice(Devices.LARIT);
 
@@ -192,7 +197,7 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
   const _path = await searchDevicePath(device);
   console.log(`Connected to ${device} at port`, _path);
   return new SerialPort({
-    path: _path !== undefined ? _path : "",
+    path: _path ?? "",
     baudRate: device === Devices.arduino ? 115200 : 9600,
     autoOpen: false,
   });
@@ -251,6 +256,7 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
