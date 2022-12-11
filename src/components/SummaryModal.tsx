@@ -36,10 +36,10 @@ const SummaryModel = (props: {
   const [open, setOpen] = useState(props.open);
 
   useEffect(() => setOpen(props.open), [props.open]);
-  useEffect(() => {
-    const renderTime = new Date();
-    console.log(renderTime.getMilliseconds());
-  }, []);
+  // useEffect(() => {
+  //   const renderTime = new Date();
+  //   console.log(renderTime.getMilliseconds());
+  // }, []);
 
   const date = new Date();
 
@@ -88,10 +88,11 @@ const SummaryModel = (props: {
   //   maxValueIndex: maxValueIndex,
   //   samplesPer: samplesPerRepetition,
   // });
-  const spikes: number[][] = findSpikes(_csvChartData ?? []);
+
+  const spikes: number[][] = findSpikes(_csvChartData ?? [0]);
   const maxValuesInSpikes = spikes.map((spike: number[]) => Math.max(...spike));
   const averageForce =
-    maxValuesInSpikes.reduce((prev, curr) => prev + curr) /
+    maxValuesInSpikes.reduce((prev, curr) => prev + curr, 0) /
     maxValuesInSpikes.length;
 
   console.log(maxValuesInSpikes.length, averageForce);
@@ -364,13 +365,6 @@ const SummaryModel = (props: {
                 >
                   AVERAGE FORCE
                   <h2>{averageForce.toFixed(2)}</h2>
-                  {/* DEVICE ERROR
-                  <h2>
-                    ±
-                    {(
-                      averageForce - props.data?.sessionSettings.force!
-                    ).toFixed(2)}
-                  </h2> */}
                 </DashboardPanel>
               </Col>
               <Col md={6}>
