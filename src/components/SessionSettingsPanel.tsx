@@ -1,28 +1,21 @@
+import RemindRoundIcon from "@rsuite/icons/RemindRound";
+import SortDownIcon from "@rsuite/icons/SortDown";
+import SortUpIcon from "@rsuite/icons/SortUp";
+import { isInteger } from "lodash";
 import React, { useEffect, useState } from "react";
 import {
-  Panel,
-  Stack,
-  InputNumber,
-  RadioGroup,
-  Radio,
   Button,
-  Form,
-  Schema,
-  Modal,
-  Placeholder,
   Divider,
-  Checkbox,
-  Slider,
+  InputNumber,
+  Modal,
+  Radio,
+  RadioGroup,
+  Stack,
   Toggle,
 } from "rsuite";
-import SortUpIcon from "@rsuite/icons/SortUp";
-import SortDownIcon from "@rsuite/icons/SortDown";
-import RemindRoundIcon from "@rsuite/icons/RemindRound";
-import { isInteger } from "lodash";
+
 import { SessionSettingsModel } from "../Models/types";
-import { Hash, Aperture } from "react-feather";
 import DashboardPanel from "./DashboardPanel";
-import { useUpdateEffect } from "rsuite/esm/utils";
 
 // const Field = React.forwardRef((props, ref) => {
 //   // const { name, message, label, accepter, error, ...rest } = props;

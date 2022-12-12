@@ -1,27 +1,23 @@
+import * as htmlToImage from "html-to-image";
 import { useEffect, useState } from "react";
+import Chart from "react-apexcharts";
 import {
   Button,
   ButtonToolbar,
   Col,
   FlexboxGrid,
-  Grid,
-  Message,
   Modal,
-  Panel,
   Row,
   Stack,
 } from "rsuite";
-import { ModalState, SaveOptions, SummaryPanelData } from "../Models/types";
-import RemindRoundIcon from "@rsuite/icons/RemindRound";
-import Chart from "react-apexcharts";
+
+import ItamarLogo from "../assets/logos/ItamarFavicon-2.png";
+import { SaveOptions, SummaryPanelData } from "../Models/types";
+import { convertSecondsToISO, findSpikes, movingAverage } from "../utils/utils";
 import DashboardPanel from "./DashboardPanel";
 import SplitButton from "./SplitButton";
-import { convertSecondsToISO, findSpikes, movingAverage } from "../utils/utils";
-import * as htmlToImage from "html-to-image";
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 import { saveAs } from "file-saver";
-import { useUpdateEffect } from "rsuite/esm/utils";
-import ItamarLogo from "../assets/logos/ItamarFavicon-2.png";
+
 const FileSaver = require("file-saver");
 
 const SummaryModel = (props: {

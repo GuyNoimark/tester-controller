@@ -1,40 +1,27 @@
+import "rsuite/dist/rsuite.min.css";
+
+import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import React, { useEffect, useState } from "react";
-import ItamarLogo from ".//assets/logos/ItamarFavicon-2.png";
 import {
   Button,
-  CustomProvider,
-  ButtonToolbar,
-  Panel,
-  Placeholder,
-  Row,
   Col,
-  Content,
-  Header,
-  InputNumber,
-  Progress,
-  Divider,
-  FlexboxGrid,
-  Container,
-  Stack,
+  CustomProvider,
   Grid,
-  Animation,
-  Toggle,
-  RadioGroup,
-  Radio,
-  Timeline,
   Modal,
+  Panel,
+  Progress,
+  Row,
+  Stack,
+  Timeline,
 } from "rsuite";
-import "rsuite/dist/rsuite.min.css";
-import SessionInput from "./Components/SessionSettingsPanel";
-import ModalAlert from "./Components/ModalAlert";
-import socketIOClient from "socket.io-client";
+
+import ItamarLogo from ".//assets/logos/ItamarFavicon-2.png";
 import ChartPanel from "./Components/ChartPanel";
-import { ModalState, SummaryPanelData } from "./Models/types";
-import RemindRoundIcon from "@rsuite/icons/RemindRound";
-import { ConnectionStatus } from "./Models/ConnectionState";
-import { Hash, Aperture } from "react-feather";
 import DashboardPanel from "./Components/DashboardPanel";
+import SessionInput from "./Components/SessionSettingsPanel";
 import SummaryModal from "./Components/SummaryModal";
+import { ConnectionStatus } from "./Models/ConnectionState";
+import { SummaryPanelData } from "./Models/types";
 
 function App() {
   const [theme, setTheme] = useState<
