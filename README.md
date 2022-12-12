@@ -40,7 +40,7 @@ The project enables communication and visualization with 2 serial devices (Ardui
 
 ## :computer: Screenshot
 
-![Logo](assets/screenshots/mockup1.jpg)
+![Logo](src/assets/screenshots/mockup1.jpg)
 
 ## :dvd: Demo
 
@@ -60,6 +60,13 @@ $ cd tester-controller/src
 $ npm run start
 ```
 
+### Build .exe
+
+```
+$ npm run build
+$ electron-packager ./ --platform=win32 --arch=x64
+```
+
 <!--
 ### :rotating_light: Tests
 
@@ -77,6 +84,8 @@ $ npm run test
 
 ```
 .
+├── build         # React app final build
+├── node_modules  # Dependencies
 ├── assets        # Assets for the project
 ├── src           # Project source code
 ├── .gitignore
