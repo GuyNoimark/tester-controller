@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Panel } from 'rsuite';
+import { Panel } from "rsuite";
 
 const DashboardPanel = (props: {
   header?: string;

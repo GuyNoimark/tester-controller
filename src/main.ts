@@ -1,9 +1,16 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
-import { ConnectionStatus } from "./Models/ConnectionState";
-const isDev = require("electron-is-dev");
 import { SerialPort } from "serialport";
+
+import { ConnectionStatus } from "./Models/ConnectionState";
 import { SessionSettingsModel, SummaryPanelData } from "./Models/types";
+
+const isDev = require("electron-is-dev");
+
+enum Devices {
+  arduino = "arduino",
+  LARIT = "LARIT",
+}
 
 function createWindow() {
   // Create the browser window.
@@ -27,7 +34,6 @@ function createWindow() {
 
   let startTest: boolean = false;
   let iterationsPreformed: number = 0;
-  let lastTime = 0;
   const samples: number[] = [];
   let settings: SessionSettingsModel;
   let startTestTime: number;
@@ -162,14 +168,6 @@ interface SerialPortData {
   pnpId: string;
   manufacturer: string;
 }
-interface DevicesPaths {
-  arduinoPath: string | undefined;
-  LARITPath: string | undefined;
-}
-enum Devices {
-  arduino = "arduino",
-  LARIT = "LARIT",
-}
 
 const searchDevicePath = async (
   device: Devices
@@ -235,15 +233,6 @@ const startArduinoTest = (arduino: SerialPort, data: SessionSettingsModel) => {
 };
 
 let realForceCounter: number = 0;
-
-const toBytes = (string: String) => {
-  const buffer = Buffer.from(string, "utf8");
-  const result = Array(buffer.length);
-  for (var i = 0; i < buffer.length; i++) {
-    result[i] = buffer[i];
-  }
-  return result;
-};
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

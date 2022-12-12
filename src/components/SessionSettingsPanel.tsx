@@ -106,7 +106,7 @@ const SessionSettingsPanel = (props: {
     else if (!isInteger(formData.force))
       return 'Field "Force" MUST be an integer';
     else if (formData.force > maxForceAllowed)
-      return 'Field "Force" MUST be smaller than ${maxForceAllowed}';
+      return `Field "Force" MUST be smaller than ${maxForceAllowed}`;
     else return true;
   };
 

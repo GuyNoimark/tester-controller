@@ -54,7 +54,6 @@ const SummaryModel = (props: {
   );
 
   const getIndex = (value: number): number => _lineChartData.indexOf(value);
-  const lowestValue = Math.min(..._lineChartData);
   const maxValue: number = Math.max(..._lineChartData);
   const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
   const maxValueIndex: number = getIndex(maxValue);
@@ -62,9 +61,8 @@ const SummaryModel = (props: {
   const repNumberToView = 10;
   const rangeToView = repNumberToView * samplesPerRepetition;
 
-  let startOfRange =
-    maxValueIndex - samplesPerRepetition * (repNumberToView / 2);
-  let endOfRange = maxValueIndex + samplesPerRepetition * (repNumberToView / 2);
+  let startOfRange = maxValueIndex - rangeToView / 2;
+  let endOfRange = maxValueIndex + rangeToView / 2;
 
   if (startOfRange < 0) {
     endOfRange += Math.abs(startOfRange);
@@ -169,7 +167,6 @@ const SummaryModel = (props: {
         style: { colors: "white" },
         formatter: function (val: string) {
           return val;
-          return +val % 10 === 0 ? val : "";
         },
       },
       // labels: {
@@ -260,7 +257,7 @@ const SummaryModel = (props: {
             <FlexboxGrid justify="space-between" align="middle">
               <Stack spacing={10}>
                 <div style={{ width: 20 }}></div>
-                <img src={ItamarLogo} width={30} />
+                <img src={ItamarLogo} width={30} alt="" />
                 {`Test Summary
                 ${date.toLocaleDateString("en-GB")}
                 ${date.toLocaleTimeString("en-GB").slice(0, -3)}`}

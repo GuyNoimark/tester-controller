@@ -30,9 +30,6 @@ function App() {
 
   const switchTheme = (e: any) => setTheme(e.target.value);
 
-  const [show, setShow] = React.useState(true);
-  const onChange = () => setShow(!show);
-
   const [forceTarget, setForceTarget] = useState(0);
   const [iterations, setIterations] = useState(0);
   const [progressValue, setProgressValue] = useState(0);
@@ -48,13 +45,14 @@ function App() {
   const [summaryData, setSummaryData] = useState<SummaryPanelData>();
 
   const [startTest, setStartTest] = useState(false);
-  enum AppState {
-    CONFIGURE,
-    IN_TEST,
-    STOP,
-    DONE,
-    ERROR,
-  }
+
+  // enum AppState {
+  //   CONFIGURE,
+  //   IN_TEST,
+  //   STOP,
+  //   DONE,
+  //   ERROR,
+  // }
 
   useEffect(() => console.log("render"));
 
@@ -140,7 +138,7 @@ function App() {
           <Grid fluid>
             <Stack direction="column" spacing={padding} alignItems="stretch">
               <DashboardPanel>
-                <img src={ItamarLogo} width={50} />
+                <img src={ItamarLogo} width={50} alt={""} />
               </DashboardPanel>
               <Row gutter={padding}>
                 <Col md={6}>
