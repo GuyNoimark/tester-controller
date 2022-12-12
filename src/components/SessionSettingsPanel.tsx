@@ -198,15 +198,27 @@ const SessionSettingsPanel = (props: {
             // }}
             onClick={() => {
               if (buttonState === ButtonState.START_TEST) {
-                const validationResponse = validate(formData);
-                if (typeof validationResponse === "string") {
-                  setValidationErrorMessage(validationResponse.toString());
-                  handleOpen();
-                } else {
-                  console.log("Start Test");
-                  setButtonState(ButtonState.STOP_TEST);
-                  props.onClickStart(formData);
-                }
+                const LARITConnected = async () =>
+                  await window.electronAPI.checkLaritOn();
+                LARITConnected().then((isConnected: boolean) => {
+                  if (isConnected) {
+                    const validationResponse = validate(formData);
+                    if (typeof validationResponse === "string") {
+                      setValidationErrorMessage(validationResponse.toString());
+                      handleOpen();
+                    } else {
+                      console.log("Start Test");
+                      setButtonState(ButtonState.STOP_TEST);
+                      props.onClickStart(formData);
+                    }
+                  } else {
+                    setValidationErrorMessage(
+                      "LARIT is turned off. Turn the device on and try again. If the problem reoccur - restart the program"
+                    );
+                    handleOpen();
+                    console.log("LARIT is not connected");
+                  }
+                });
               } else {
                 console.log("STOP!!!");
                 props.onClickStop();

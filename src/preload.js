@@ -24,7 +24,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         };
     },
     stopTest: () => ipcRenderer.send('stopTest'),
-    getSummary: (message) => ipcRenderer.invoke('getSummary', message),
+    getSummary: (message) => ipcRenderer.invoke('`getSummary`', message),
+    checkLaritOn: (isConnected) => ipcRenderer.invoke('check-LARIT-on', isConnected),
 
 
     // deviceNotFound: (device) => {

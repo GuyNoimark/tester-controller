@@ -160,6 +160,8 @@ function createWindow() {
     });
 
     ipcMain.handle("getSummary", sendSummary);
+
+    ipcMain.handle("check-LARIT-on", () => LARIT.isOpen);
   });
 }
 
