@@ -1,12 +1,11 @@
-import react, { useEffect, useState } from "react";
-import { Panel } from "rsuite";
-import DashboardPanel from "./DashboardPanel";
-import { Line } from "react-chartjs-2";
-import ChartStreamingPlugin from "chartjs-plugin-streaming";
 import "chartjs-adapter-moment";
-import annotationPlugin from "chartjs-plugin-annotation";
 
 import { Chart, registerables } from "chart.js";
+import annotationPlugin from "chartjs-plugin-annotation";
+import ChartStreamingPlugin from "chartjs-plugin-streaming";
+import react, { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+
 Chart.register(...registerables);
 Chart.register(ChartStreamingPlugin);
 Chart.register(annotationPlugin);
