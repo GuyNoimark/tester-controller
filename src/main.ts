@@ -33,12 +33,7 @@ function createWindow() {
   let startTestTime: number;
 
   const raiseErrorOnRenderer = (err: any, device?: Devices) => {
-    console.log(
-      "Error: ",
-      device !== undefined ? device : "",
-      " - ",
-      err.message
-    );
+    console.log("Error: ", device ?? "", " - ", err);
     mainWindow.webContents.send("error", err.message);
   };
 
@@ -56,7 +51,7 @@ function createWindow() {
     }
 
     arduino.write(sensorValue.toString(), function (err: any) {
-      if (err) raiseErrorOnRenderer(err.message, Devices.arduino);
+      if (err) raiseErrorOnRenderer("0003" + err.message, Devices.arduino);
     });
   };
 
@@ -112,22 +107,31 @@ function createWindow() {
           startTestTime = new Date().getTime();
         }, 500);
       } else {
-        raiseErrorOnRenderer(checkConnection);
+        raiseErrorOnRenderer("0004" + checkConnection);
       }
     });
 
     // Asks for a sensor sample
     setInterval(() => {
       LARIT.write("?", function (err: any) {
-        if (err) raiseErrorOnRenderer(err.message, Devices.LARIT);
+        if (err) raiseErrorOnRenderer("0001" + err.message, Devices.LARIT);
       });
     }, 0.5);
 
     ipcMain.on("stopTest", () => {
       startTest = false;
       iterationsPreformed = 0;
-      arduino.close();
-      LARIT.close();
+      arduino.flush();
+      setTimeout(() => {
+        // for (let index = 0; index < 10; index++) {
+        arduino.write("SSSSSSSSSS", function (err: any) {
+          console.log("stop");
+          if (err) raiseErrorOnRenderer("0002" + err.message, Devices.LARIT);
+        });
+        // }
+        arduino.close();
+        LARIT.close();
+      }, 100);
     });
 
     // Saves the return sample
@@ -200,6 +204,7 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
     path: _path ?? "",
     baudRate: device === Devices.arduino ? 115200 : 9600,
     autoOpen: false,
+    hupcl: false,
   });
 };
 

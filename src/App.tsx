@@ -292,7 +292,7 @@ function App() {
                 }}
                 // loading={getPorts}
               >
-                Close{" "}
+                Close App
               </Button>
             </Modal.Footer>
           </Modal>
