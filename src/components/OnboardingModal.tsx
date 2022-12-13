@@ -83,7 +83,10 @@ const OnboardingModal = (props: { open: boolean; onClose(): void }) => {
     <>
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          props.onClose();
+        }}
         size={"sm"}
         overflow={false}
         className="OnboardingModal"
@@ -154,6 +157,7 @@ const OnboardingModal = (props: { open: boolean; onClose(): void }) => {
                 isLastPage
                   ? setOpen(false)
                   : setCurrentPageIndex(currentPageIndex + 1);
+                if (isLastPage) props.onClose();
               }}
               appearance={isLastPage ? "primary" : "default"}
             >

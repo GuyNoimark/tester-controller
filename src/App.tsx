@@ -60,23 +60,6 @@ function App() {
   useEffect(() => console.log("render"));
 
   useEffect(() => {
-    const getResponse = async () => await window.electronAPI.getSerialPorts();
-    setTimeout(
-      () =>
-        getResponse().then((response: ConnectionStatus) => {
-          if (response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
-            setErrorMessage(response.toString());
-            setOpen(true);
-          } else {
-            console.log("Devices Connected");
-            setOpen(false);
-            setGetPorts(false);
-          }
-          setGetPorts(false);
-        }),
-      500
-    );
-
     const removeEventListener = window.electronAPI.getErrors(
       (event: any, error: string) => {
         setErrorMessage(error);
@@ -240,7 +223,30 @@ function App() {
               </Row>
             </Stack>
           </Grid>
-          <OnboardingModal open={openOnboardingModal} onClose={() => {}} />
+          <OnboardingModal
+            open={openOnboardingModal}
+            onClose={() => {
+              const getResponse = async () =>
+                await window.electronAPI.getSerialPorts();
+              setTimeout(
+                () =>
+                  getResponse().then((response: ConnectionStatus) => {
+                    if (
+                      response !== ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED
+                    ) {
+                      setErrorMessage(response.toString());
+                      setOpen(true);
+                    } else {
+                      console.log("Devices Connected");
+                      setOpen(false);
+                      setGetPorts(false);
+                    }
+                    setGetPorts(false);
+                  }),
+                500
+              );
+            }}
+          />
           <SummaryModal
             data={summaryData}
             open={openSummaryModal}
