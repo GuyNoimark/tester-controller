@@ -151,7 +151,7 @@ const SummaryModal = (props: {
       curve: "straight",
       //   curve: "stepline",
       // curve: "smooth",
-      width: 0,
+      width: 2,
     },
     markers: {
       size: 5,
