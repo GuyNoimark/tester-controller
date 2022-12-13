@@ -53,28 +53,28 @@ const SummaryModal = (props: {
     value > 0 ? _lineChartData.push(value) : ""
   );
 
-  const getIndex = (value: number): number => _lineChartData.indexOf(value);
-  const maxValue: number = Math.max(..._lineChartData);
-  const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
-  const maxValueIndex: number = getIndex(maxValue);
+  // const getIndex = (value: number): number => _lineChartData.indexOf(value);
+  // const maxValue: number = Math.max(..._lineChartData);
+  // const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
+  // const maxValueIndex: number = getIndex(maxValue);
 
-  const repNumberToView = 10;
-  const rangeToView = repNumberToView * samplesPerRepetition;
+  // const repNumberToView = 10;
+  // const rangeToView = repNumberToView * samplesPerRepetition;
 
-  let startOfRange = maxValueIndex - rangeToView / 2;
-  let endOfRange = maxValueIndex + rangeToView / 2;
+  // let startOfRange = maxValueIndex - rangeToView / 2;
+  // let endOfRange = maxValueIndex + rangeToView / 2;
 
-  if (startOfRange < 0) {
-    endOfRange += Math.abs(startOfRange);
-    startOfRange = 0;
-  } else if (endOfRange > _lineChartData.length) {
-    startOfRange -= endOfRange - _lineChartData.length;
-    endOfRange = _lineChartData.length;
-  }
+  // if (startOfRange < 0) {
+  //   endOfRange += Math.abs(startOfRange);
+  //   startOfRange = 0;
+  // } else if (endOfRange > _lineChartData.length) {
+  //   startOfRange -= endOfRange - _lineChartData.length;
+  //   endOfRange = _lineChartData.length;
+  // }
 
-  let wantedRange = _lineChartData.slice(startOfRange, endOfRange);
+  // let wantedRange = _lineChartData.slice(startOfRange, endOfRange);
 
-  wantedRange = movingAverage(wantedRange, 15);
+  // wantedRange = movingAverage(wantedRange, 15);
 
   // console.log({
   //   start: startOfRange,
@@ -92,6 +92,11 @@ const SummaryModal = (props: {
     maxValuesInSpikes.length;
 
   console.log(maxValuesInSpikes.length, averageForce, maxValuesInSpikes);
+
+  const getIndex = (value: number): number => maxValuesInSpikes.indexOf(value);
+  const maxValue: number = Math.max(...maxValuesInSpikes);
+  const realMaxValue: number = Math.max(...maxValuesInSpikes);
+  const maxValueIndex: number = getIndex(maxValue);
 
   // const spike = _csvChartData?.reduce((resultArray, item, index) => {
   //   item > 0 ? _csvChartData?.findIndex((val) => val ===0 )
@@ -112,8 +117,8 @@ const SummaryModal = (props: {
   const chartSeriesData: ApexAxisChartSeries = [
     // { name: "sensorValue", data: [0, 5, 1, 4] },
     {
-      data: wantedRange,
-      // data: maxValuesInSpikes,
+      // data: wantedRange,
+      data: maxValuesInSpikes,
     },
   ];
 
@@ -143,12 +148,16 @@ const SummaryModal = (props: {
       },
     },
     stroke: {
-      // curve: "straight",
+      curve: "straight",
       //   curve: "stepline",
-      curve: "smooth",
+      // curve: "smooth",
+      width: 0,
+    },
+    markers: {
+      size: 5,
     },
     title: {
-      text: `Shows ${repNumberToView} cycles (Out of ${props.data?.sessionSettings.iterations})`,
+      // text: `Shows ${repNumberToView} cycles (Out of ${props.data?.sessionSettings.iterations})`,
       align: "left",
       style: {
         fontSize: "12px",
@@ -157,6 +166,7 @@ const SummaryModal = (props: {
         color: "#868686",
       },
     },
+
     xaxis: {
       axisTicks: {
         show: true,
@@ -179,8 +189,10 @@ const SummaryModal = (props: {
       //   range: XAXISRANGE,
     },
     yaxis: {
-      min: -20,
-      max: 20,
+      min: props.data?.sessionSettings.force! - 1,
+      max: props.data?.sessionSettings.force! + 2,
+      // min: 14,
+      // max: 18,
 
       //   tickAmount: 10,
     },
@@ -201,7 +213,8 @@ const SummaryModal = (props: {
       ],
       points: [
         {
-          x: maxValueIndex - startOfRange,
+          // x: maxValueIndex - startOfRange,
+          x: maxValueIndex + 1,
           // x: ,
           // y: 12.13,
           y: maxValue,
@@ -213,7 +226,7 @@ const SummaryModal = (props: {
           },
           seriesIndex: 0,
           label: {
-            text: `Max Force ${realMaxValue}`,
+            text: `Max Force: ${realMaxValue}`,
             borderColor: "#FF4560",
             style: {
               color: "#fff",
