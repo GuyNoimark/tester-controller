@@ -6,6 +6,9 @@ import ChartStreamingPlugin from "chartjs-plugin-streaming";
 import react, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 
+Chart.defaults.font.family =
+  "Apple-System,Arial,Helvetica,PingFang SC,Hiragino Sans GB,Microsoft YaHei,STXihei,sans-serif";
+
 Chart.register(...registerables);
 Chart.register(ChartStreamingPlugin);
 Chart.register(annotationPlugin);

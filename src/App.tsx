@@ -150,38 +150,11 @@ function App() {
                       }}
                     ></SessionInput>
 
-                    <Panel
-                      header={
-                        <Progress.Line
-                          percent={+progressValue.toFixed(0)}
-                          status="active"
-                        />
-                      }
-                      shaded
-                      bordered
-                      collapsible
-                    >
-                      <Stack
-                        direction="column"
-                        spacing={padding}
-                        alignItems="stretch"
-                      >
-                        <Timeline>
-                          <Timeline.Item>
-                            16:27:41 Session Started
-                          </Timeline.Item>
-                          <Timeline.Item>16:28:43 50% Done</Timeline.Item>
-                          <Timeline.Item>
-                            16:28:45 Test results available
-                          </Timeline.Item>
-                          <Timeline.Item>
-                            02:34:41 Send to Shanghai Hongkou Company
-                          </Timeline.Item>
-                          <Timeline.Item>
-                            15:05:29 Sending you a piece
-                          </Timeline.Item>
-                        </Timeline>
-                      </Stack>
+                    <Panel shaded bordered>
+                      <Progress.Line
+                        percent={+progressValue.toFixed(0)}
+                        status="active"
+                      />
                     </Panel>
                   </Stack>
                 </Col>

@@ -24,10 +24,6 @@ const OnboardingModal = (props: { open: boolean; onClose(): void }) => {
     panels: PanelData[];
   };
 
-  type OnboardingModalData = {
-    onboardingPages: OnboardingPage;
-  };
-
   const defaultIconSize = 40;
 
   const page1: OnboardingPage = {
@@ -116,7 +112,7 @@ const OnboardingModal = (props: { open: boolean; onClose(): void }) => {
             ></div>
             {pages[currentPageIndex].panels.map(
               (panel: PanelData, index: number, panelsArray: PanelData[]) => (
-                <>
+                <div key={index}>
                   <Panel style={{ background: "#f7f7f8" }}>
                     <Stack spacing={20}>
                       {panel.icon}
@@ -132,7 +128,7 @@ const OnboardingModal = (props: { open: boolean; onClose(): void }) => {
                   ) : (
                     <></>
                   )}
-                </>
+                </div>
               )
             )}
           </div>
