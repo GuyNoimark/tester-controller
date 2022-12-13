@@ -20,7 +20,7 @@ import { saveAs } from "file-saver";
 
 const FileSaver = require("file-saver");
 
-const SummaryModel = (props: {
+const SummaryModal = (props: {
   data?: SummaryPanelData;
   open: boolean;
   onClose(): void;
@@ -380,4 +380,4 @@ const SummaryModel = (props: {
   );
 };
 
-export default SummaryModel;
+export default SummaryModal;

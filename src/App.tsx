@@ -22,6 +22,7 @@ import SessionInput from "./Components/SessionSettingsPanel";
 import SummaryModal from "./Components/SummaryModal";
 import { ConnectionStatus } from "./Models/ConnectionState";
 import { SummaryPanelData } from "./Models/types";
+import OnboardingModal from "./Components/OnboardingModal";
 
 function App() {
   const [theme, setTheme] = useState<
@@ -45,6 +46,8 @@ function App() {
   const [summaryData, setSummaryData] = useState<SummaryPanelData>();
 
   const [startTest, setStartTest] = useState(false);
+
+  const [openOnboardingModal, setOpenOnboardingModal] = useState(true);
 
   // enum AppState {
   //   CONFIGURE,
@@ -237,6 +240,7 @@ function App() {
               </Row>
             </Stack>
           </Grid>
+          <OnboardingModal open={openOnboardingModal} onClose={() => {}} />
           <SummaryModal
             data={summaryData}
             open={openSummaryModal}
