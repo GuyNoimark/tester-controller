@@ -57,7 +57,7 @@ function createWindow() {
     }
 
     arduino.write(sensorValue.toString(), function (err: any) {
-      if (err) raiseErrorOnRenderer("0003" + err.message, Devices.arduino);
+      if (err) raiseErrorOnRenderer("0003: " + err.message, Devices.arduino);
     });
   };
 
@@ -101,7 +101,7 @@ function createWindow() {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
         arduino.open();
-        LARIT.open();
+        // LARIT.open();
         startArduinoTest(arduino, data);
         settings = data;
         // console.log("Starts Test in 2 seconds");
@@ -113,14 +113,14 @@ function createWindow() {
           startTestTime = new Date().getTime();
         }, 500);
       } else {
-        raiseErrorOnRenderer("0004" + checkConnection);
+        raiseErrorOnRenderer("0004: " + checkConnection);
       }
     });
 
     // Asks for a sensor sample
     setInterval(() => {
       LARIT.write("?", function (err: any) {
-        if (err) raiseErrorOnRenderer("0001" + err.message, Devices.LARIT);
+        if (err) raiseErrorOnRenderer("0001: " + err.message, Devices.LARIT);
       });
     }, 0.5);
 
@@ -132,7 +132,7 @@ function createWindow() {
         // for (let index = 0; index < 10; index++) {
         arduino.write("SSSSSSSSSS", function (err: any) {
           console.log("stop");
-          if (err) raiseErrorOnRenderer("0002" + err.message, Devices.LARIT);
+          if (err) raiseErrorOnRenderer("0002: " + err.message, Devices.LARIT);
         });
         // }
         arduino.close();
@@ -161,7 +161,39 @@ function createWindow() {
 
     ipcMain.handle("getSummary", sendSummary);
 
-    ipcMain.handle("check-LARIT-on", () => LARIT.isOpen);
+    ipcMain.handle("check-LARIT-on", async (): Promise<boolean> => {
+      try {
+        const result = await apiFunctionWrapper();
+        console.log(result);
+        return true;
+      } catch (error) {
+        console.error("ERROR:" + error);
+        return false;
+      }
+    });
+
+    function apiFunction(successCallback: Function, errorCallback: Function) {
+      LARIT.open(function (err: any) {
+        if (err) {
+          errorCallback("Error opening port: ", err.message);
+        } else {
+          successCallback("success");
+        }
+      });
+    }
+
+    function apiFunctionWrapper() {
+      return new Promise((resolve, reject) => {
+        apiFunction(
+          (successResponse: string) => {
+            resolve(successResponse);
+          },
+          (errorResponse: string) => {
+            reject(errorResponse);
+          }
+        );
+      });
+    }
   });
 }
 
