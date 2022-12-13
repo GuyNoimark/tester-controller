@@ -103,7 +103,7 @@ function createWindow() {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
         samples.splice(0, samples.length);
-        arduino.open();
+        if (!arduino.isOpen) arduino.open();
         // LARIT.open();
         startArduinoTest(arduino, data);
         settings = data;
@@ -139,8 +139,8 @@ function createWindow() {
             raiseErrorOnRenderer("0002: " + err.message, Devices.arduino);
         });
         // }
-        arduino.close();
-        LARIT.close();
+        if (arduino.isOpen) arduino.close();
+        if (arduino.isOpen) LARIT.close();
       }, 100);
     });
 
@@ -172,6 +172,13 @@ function createWindow() {
         return true;
       } catch (error) {
         console.error("Error opening port: " + error);
+        raiseErrorOnRenderer(
+          "LARIT is turned off or disconnected. Turn the device on and restart the program" +
+            " --- " +
+            "0005: " +
+            error,
+          Devices.LARIT
+        );
         return false;
       }
     });

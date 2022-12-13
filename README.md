@@ -54,15 +54,16 @@ TODO
 
 ## :floppy_disk: Installation and usage
 
-```
+```console
 $ git clone https://github.com/GuyNoimark/tester-controller
 $ cd tester-controller/src
+$ npm install --force
 $ npm run start
 ```
 
 ### Build .exe
 
-```
+```console
 $ npm run build
 $ electron-packager ./ --platform=win32 --arch=x64
 ```

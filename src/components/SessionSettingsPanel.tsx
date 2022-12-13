@@ -212,10 +212,10 @@ const SessionSettingsPanel = (props: {
                       props.onClickStart(formData);
                     }
                   } else {
-                    setValidationErrorMessage(
-                      "LARIT is turned off. Turn the device on and try again. If the problem reoccur - restart the program"
-                    );
-                    handleOpen();
+                    // setValidationErrorMessage(
+                    //   "LARIT is turned off. Turn the device on and try again. If the problem reoccur - restart the program"
+                    // );
+                    // handleOpen();
                     console.log("LARIT is not connected");
                   }
                 });
