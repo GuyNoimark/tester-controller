@@ -44,9 +44,7 @@ The project enables communication and visualization with 2 serial devices (Ardui
 
 ## :dvd: Demo
 
-TODO
-
-<!-- Add a GID -->
+![Logo](src/assets/screenshots/Onboarding.gif)
 
 ## :exclamation: Requirements
 
