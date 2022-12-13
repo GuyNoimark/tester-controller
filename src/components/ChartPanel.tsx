@@ -64,7 +64,7 @@ const ChartPanel = (props: { forceTarget: number; pause: boolean }) => {
                   yMin: props.forceTarget,
                   yMax: props.forceTarget,
                   borderColor: "rgb(255, 99, 132)",
-                  borderWidth: 4,
+                  borderWidth: 3,
                   borderDash: [4, 4],
                 },
               },

@@ -84,8 +84,10 @@ const SummaryModal = (props: {
   // });
 
   const spikes: number[][] = findSpikes(_csvChartData ?? [0]);
-  const maxValuesInSpikes = spikes.map((spike: number[]) => Math.max(...spike));
-  const averageForce =
+  const maxValuesInSpikes: number[] = spikes.map((spike: number[]) =>
+    Math.max(...spike)
+  );
+  const averageForce: number =
     maxValuesInSpikes.reduce((prev, curr) => prev + curr, 0) /
     maxValuesInSpikes.length;
 
@@ -111,6 +113,7 @@ const SummaryModal = (props: {
     // { name: "sensorValue", data: [0, 5, 1, 4] },
     {
       data: wantedRange,
+      // data: maxValuesInSpikes,
     },
   ];
 

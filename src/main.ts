@@ -40,7 +40,7 @@ function createWindow() {
 
   const raiseErrorOnRenderer = (err: any, device?: Devices) => {
     console.log("Error: ", device ?? "", " - ", err);
-    mainWindow.webContents.send("error", err.message);
+    mainWindow.webContents.send("error", err);
   };
 
   const sendSensorValueToArduino = (
@@ -100,6 +100,7 @@ function createWindow() {
     ipcMain.on("arduinoWrite", async (event, data: SessionSettingsModel) => {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
+        samples.splice(0, samples.length);
         arduino.open();
         // LARIT.open();
         startArduinoTest(arduino, data);
@@ -132,7 +133,8 @@ function createWindow() {
         // for (let index = 0; index < 10; index++) {
         arduino.write("SSSSSSSSSS", function (err: any) {
           console.log("stop");
-          if (err) raiseErrorOnRenderer("0002: " + err.message, Devices.LARIT);
+          if (err)
+            raiseErrorOnRenderer("0002: " + err.message, Devices.arduino);
         });
         // }
         arduino.close();
@@ -167,7 +169,7 @@ function createWindow() {
         console.log(result);
         return true;
       } catch (error) {
-        console.error("ERROR:" + error);
+        console.error("Error opening port: " + error);
         return false;
       }
     });
@@ -175,7 +177,7 @@ function createWindow() {
     function apiFunction(successCallback: Function, errorCallback: Function) {
       LARIT.open(function (err: any) {
         if (err) {
-          errorCallback("Error opening port: ", err.message);
+          errorCallback(err, err.message);
         } else {
           successCallback("success");
         }

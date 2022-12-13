@@ -4,6 +4,7 @@ import RemindRoundIcon from "@rsuite/icons/RemindRound";
 import React, { useEffect, useState } from "react";
 import {
   Button,
+  ButtonToolbar,
   Col,
   CustomProvider,
   Grid,
@@ -25,11 +26,10 @@ import { SummaryPanelData } from "./Models/types";
 import OnboardingModal from "./Components/OnboardingModal";
 
 function App() {
-  const [theme, setTheme] = useState<
-    "light" | "dark" | "high-contrast" | undefined
-  >("light");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const switchTheme = (e: any) => setTheme(e.target.value);
+  const switchTheme = () =>
+    setTheme((theme) => (theme === "light" ? "dark" : "light"));
 
   const [forceTarget, setForceTarget] = useState(0);
   const [iterations, setIterations] = useState(0);
@@ -61,7 +61,8 @@ function App() {
 
   useEffect(() => {
     const removeEventListener = window.electronAPI.getErrors(
-      (event: any, error: string) => {
+      (event: any, error: any) => {
+        console.log(error);
         setErrorMessage(error);
         setOpen(true);
       }
@@ -111,20 +112,27 @@ function App() {
           //   "linear-gradient(87deg, rgba(2,0,36,1) 0%, rgba(7,71,114,1) 35%, rgba(8,162,155,1) 100%)",
         }}
       >
-        {/* <ButtonToolbar>
+        {/* <ButtonTmlbar>
           <Button appearance="default" onClick={switchTheme} value="light">
             Light theme
           </Button>
           <Button appearance="primary" onClick={switchTheme} value="dark">
             Dark theme
           </Button>
-        </ButtonToolbar> */}
-        {/* <Divider></Divider> */}
+        </ButtonToolbar>
+        <Divider></Divider> */}
         <div>
           <Grid fluid>
             <Stack direction="column" spacing={padding} alignItems="stretch">
               <DashboardPanel>
-                <img src={ItamarLogo} width={50} alt={""} />
+                {/* <button> */}{" "}
+                <img
+                  src={ItamarLogo}
+                  width={50}
+                  alt={""}
+                  onClick={switchTheme}
+                />
+                {/* </button> */}
               </DashboardPanel>
               <Row gutter={padding}>
                 <Col md={6}>
