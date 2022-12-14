@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
-import { SerialPort } from "serialport";
+import { ReadlineParser, SerialPort } from "serialport";
 
 import { ConnectionStatus } from "./Models/ConnectionState";
 import { SessionSettingsModel, SummaryPanelData } from "./Models/types";
@@ -58,7 +58,7 @@ function createWindow() {
       realForceCounter = 0;
     }
 
-    arduino.write(sensorValue.toString(), function (err: any) {
+    arduino.write(`<${sensorValue}>`, function (err: any) {
       if (err) raiseErrorOnRenderer("0003: " + err.message, Devices.arduino);
     });
   };
@@ -88,21 +88,30 @@ function createWindow() {
     const LARIT = await getSerialPortDevice(Devices.LARIT);
 
     // Reads arduino serialPort in "flowing mode"
-    arduino.on("data", function (data: Buffer) {
-      console.log("Data:", data.toString("utf-8"));
-      if (data.toString("utf-8").includes("i")) {
-        iterationsPreformed += 1;
-        mainWindow.webContents.send("setProgress", iterationsPreformed);
-        console.log(iterationsPreformed);
-      }
-      // if (data.toString("utf-8"))
+
+    const arduinoParser = arduino.pipe(
+      new ReadlineParser({ delimiter: "\r\n" })
+    );
+    arduinoParser.on("data", (chunk) => {
+      console.log("arduino", chunk);
     });
+
+    // arduino.on("data", function (data: Buffer) {
+    //   console.log("Data:", data.toString("utf-8"));
+    //   if (data.toString("utf-8").includes("i")) {
+    //     iterationsPreformed += 1;
+    //     mainWindow.webContents.send("setProgress", iterationsPreformed);
+    //     console.log(iterationsPreformed);
+    //   }
+    //   // if (data.toString("utf-8"))
+    // });
 
     //Start the test
     ipcMain.on("arduinoWrite", async (event, data: SessionSettingsModel) => {
       const checkConnection = await checkConnectionStatus();
       if (checkConnection === ConnectionStatus.BOTH_DEVICES_ARE_CONNECTED) {
         samples.splice(0, samples.length);
+        // if (!arduino.isOpen) arduino.open();
         if (!arduino.isOpen) arduino.open();
         // LARIT.open();
         startArduinoTest(arduino, data);
@@ -120,12 +129,12 @@ function createWindow() {
       }
     });
 
-    // Asks for a sensor sample
+    // !Asks for a sensor sample
     setInterval(() => {
       LARIT.write("?", function (err: any) {
         if (err) raiseErrorOnRenderer("0001: " + err.message, Devices.LARIT);
       });
-    }, 0.5);
+    }, 5);
 
     ipcMain.on("stopTest", () => {
       startTest = false;
@@ -140,26 +149,25 @@ function createWindow() {
         });
         // }
         if (arduino.isOpen) arduino.close();
-        if (arduino.isOpen) LARIT.close();
+        if (LARIT.isOpen) LARIT.close();
       }, 100);
     });
 
-    // Saves the return sample
-    LARIT.on("data", function (data: Buffer) {
-      const formattedData: string = data.toString("utf8").slice(0, -3);
+    //! Saves the return sample
+    const laritParser = LARIT.pipe(new ReadlineParser({ delimiter: "N" }));
+    laritParser.on("data", (chunk) => {
+      const formattedData = chunk;
       let sensorValue = parseFloat(formattedData);
       samples.push(Math.abs(sensorValue));
-      // console.log(Buffer.from(sensorValue.toString(), "utf-8"));
 
       // console.log("Data:", sensorValue);
       // console.log("Data:", startTest);
 
       if (startTest) {
-        sendSensorValueToArduino(sensorValue, arduino);
+        // console.log("lar", chunk);
+        // arduino.write(`<${chunk}>`);
+        sendSensorValueToArduino(chunk, arduino);
         mainWindow.webContents.send("getSensorValue", sensorValue);
-        // if (samples.length % 100 === 0) {
-        //Sends 1 sample ever 50 millis
-        // }
       }
     });
 
@@ -265,15 +273,17 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
 // };
 
 const startArduinoTest = (arduino: SerialPort, data: SessionSettingsModel) => {
-  // arduino.write('Send Data from GUI - ' + message);
+  arduino.write(`<${data.iterations}>`);
+  arduino.write(`<${data.force}>`);
+  arduino.write(`<${data.push ? 1 : 2}>`);
+  arduino.write(`<${((537.7 / 3) * data.stroke).toFixed(2)}>`);
 
-  arduino.write(`<${data.iterations}> \n`);
-  arduino.write(`<${data.force}> \n`);
-  arduino.write(`<${data.push ? 1 : 2}> \n`);
-  arduino.write(`<${(537.7 / 3) * data.stroke}>`, function (err: any) {
-    if (err) console.log(err);
-  });
-
+  // console.log(
+  //   `<${data.iterations}>`,
+  //   `<${data.force}>`,
+  //   `<${data.push ? 1 : 2}>`,
+  //   `<${(537.7 / 3) * data.stroke}>`
+  // );
   console.log("Send Data from GUI - ", data);
 };
 
