@@ -190,7 +190,7 @@ const SummaryModal = (props: {
     },
     yaxis: {
       min: props.data?.sessionSettings.force! - 1,
-      max: props.data?.sessionSettings.force! + 2,
+      max: maxValue + 1,
       // min: 14,
       // max: 18,
 

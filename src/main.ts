@@ -58,7 +58,7 @@ function createWindow() {
       realForceCounter = 0;
     }
 
-    arduino.write(`<${sensorValue}>`, function (err: any) {
+    arduino.write(`{${sensorValue}}`, function (err: any) {
       if (err) raiseErrorOnRenderer("0003: " + err.message, Devices.arduino);
     });
   };
@@ -94,15 +94,20 @@ function createWindow() {
     );
     arduinoParser.on("data", (chunk) => {
       console.log("arduino", chunk);
+      if (chunk.includes("i")) {
+        iterationsPreformed += 1;
+        mainWindow.webContents.send("setProgress", iterationsPreformed);
+        console.log(iterationsPreformed);
+      }
     });
 
     // arduino.on("data", function (data: Buffer) {
     //   console.log("Data:", data.toString("utf-8"));
-    //   if (data.toString("utf-8").includes("i")) {
-    //     iterationsPreformed += 1;
-    //     mainWindow.webContents.send("setProgress", iterationsPreformed);
-    //     console.log(iterationsPreformed);
-    //   }
+    // if (data.toString("utf-8").includes("i")) {
+    //   iterationsPreformed += 1;
+    //   mainWindow.webContents.send("setProgress", iterationsPreformed);
+    //   console.log(iterationsPreformed);
+    // }
     //   // if (data.toString("utf-8"))
     // });
 
@@ -131,9 +136,10 @@ function createWindow() {
 
     // !Asks for a sensor sample
     setInterval(() => {
-      LARIT.write("?", function (err: any) {
-        if (err) raiseErrorOnRenderer("0001: " + err.message, Devices.LARIT);
-      });
+      if (LARIT.isOpen)
+        LARIT.write("?", function (err: any) {
+          if (err) raiseErrorOnRenderer("0001: " + err.message, Devices.LARIT);
+        });
     }, 5);
 
     ipcMain.on("stopTest", () => {
@@ -147,10 +153,11 @@ function createWindow() {
           if (err)
             raiseErrorOnRenderer("0002: " + err.message, Devices.arduino);
         });
+        arduino.flush();
         // }
         if (arduino.isOpen) arduino.close();
         if (LARIT.isOpen) LARIT.close();
-      }, 100);
+      }, 1000);
     });
 
     //! Saves the return sample
@@ -164,7 +171,7 @@ function createWindow() {
       // console.log("Data:", startTest);
 
       if (startTest) {
-        // console.log("lar", chunk);
+        // console.log(chunk);
         // arduino.write(`<${chunk}>`);
         sendSensorValueToArduino(chunk, arduino);
         mainWindow.webContents.send("getSensorValue", sensorValue);
