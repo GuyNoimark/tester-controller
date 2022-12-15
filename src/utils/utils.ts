@@ -19,15 +19,11 @@ export const movingAverage = (array: number[], range: number): number[] => {
 export function findSpikes(arr: number[]): number[][] {
   let spikeStartIndex: number = 0;
   let spikeEndIndex: number = 0;
-  const smoothGraph = movingAverage(arr, 100);
+  // const smoothGraph = movingAverage(arr, 100);
   return arr.reduce(function (spikes: number[][], val, i) {
-    if (smoothGraph[i + 1] >= 3 && smoothGraph[i] < 3) {
+    if (arr[i + 1] >= 3 && arr[i] < 3) {
       spikeStartIndex = i;
-    } else if (
-      spikeStartIndex !== 0 &&
-      smoothGraph[i + 1] === 0 &&
-      smoothGraph[i + 2] === 0
-    ) {
+    } else if (spikeStartIndex !== 0 && arr[i + 1] === 0 && arr[i + 2] === 0) {
       spikeEndIndex = i;
       spikes.push(arr.slice(spikeStartIndex, spikeEndIndex));
       spikeStartIndex = 0;

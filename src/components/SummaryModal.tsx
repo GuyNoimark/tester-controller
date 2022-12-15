@@ -55,6 +55,7 @@ const SummaryModal = (props: {
 
   // const getIndex = (value: number): number => _lineChartData.indexOf(value);
   // const maxValue: number = Math.max(..._lineChartData);
+  // const minValue: number = Math.min(..._lineChartData);
   // const realMaxValue: number = Math.max(...(_csvChartData ?? [100]));
   // const maxValueIndex: number = getIndex(maxValue);
 
@@ -74,7 +75,7 @@ const SummaryModal = (props: {
 
   // let wantedRange = _lineChartData.slice(startOfRange, endOfRange);
 
-  // wantedRange = movingAverage(wantedRange, 15);
+  // wantedRange = movingAverage(wantedRange, 3);
 
   // console.log({
   //   start: startOfRange,
@@ -92,9 +93,11 @@ const SummaryModal = (props: {
     maxValuesInSpikes.length;
 
   console.log(maxValuesInSpikes.length, averageForce, maxValuesInSpikes);
+  console.log(spikes);
 
   const getIndex = (value: number): number => maxValuesInSpikes.indexOf(value);
   const maxValue: number = Math.max(...maxValuesInSpikes);
+  const minValue: number = Math.min(...maxValuesInSpikes);
   const realMaxValue: number = Math.max(...maxValuesInSpikes);
   const maxValueIndex: number = getIndex(maxValue);
 
@@ -153,9 +156,9 @@ const SummaryModal = (props: {
       // curve: "smooth",
       width: 2,
     },
-    markers: {
-      size: 5,
-    },
+    // markers: {
+    //   size: 5,
+    // },
     title: {
       // text: `Shows ${repNumberToView} cycles (Out of ${props.data?.sessionSettings.iterations})`,
       align: "left",
@@ -189,7 +192,7 @@ const SummaryModal = (props: {
       //   range: XAXISRANGE,
     },
     yaxis: {
-      min: props.data?.sessionSettings.force! - 1,
+      min: minValue - 1,
       max: maxValue + 1,
       // min: 14,
       // max: 18,

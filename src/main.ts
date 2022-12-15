@@ -136,10 +136,11 @@ function createWindow() {
 
     // !Asks for a sensor sample
     setInterval(() => {
-      if (LARIT.isOpen)
+      if (LARIT.isOpen) {
         LARIT.write("?", function (err: any) {
           if (err) raiseErrorOnRenderer("0001: " + err.message, Devices.LARIT);
         });
+      }
     }, 5);
 
     ipcMain.on("stopTest", () => {
@@ -148,16 +149,18 @@ function createWindow() {
       arduino.flush();
       setTimeout(() => {
         // for (let index = 0; index < 10; index++) {
-        arduino.write("SSSSSSSSSS", function (err: any) {
-          console.log("stop");
-          if (err)
-            raiseErrorOnRenderer("0002: " + err.message, Devices.arduino);
-        });
-        arduino.flush();
-        // }
+        if (arduino.isOpen) {
+          arduino.write("SSSSSSSSSS", function (err: any) {
+            console.log("stop");
+            if (err)
+              raiseErrorOnRenderer("0002: " + err.message, Devices.arduino);
+          });
+        }
+      }, 1000);
+      setTimeout(() => {
         if (arduino.isOpen) arduino.close();
         if (LARIT.isOpen) LARIT.close();
-      }, 1000);
+      }, 1500);
     });
 
     //! Saves the return sample
@@ -260,7 +263,7 @@ const getSerialPortDevice = async (device: Devices): Promise<SerialPort> => {
   console.log(`Connected to ${device} at port`, _path);
   return new SerialPort({
     path: _path ?? "",
-    baudRate: device === Devices.arduino ? 115200 : 9600,
+    baudRate: device === Devices.arduino ? 115200 : 115200,
     autoOpen: false,
     hupcl: false,
   });
