@@ -11,7 +11,7 @@ import {
   Stack,
 } from "rsuite";
 
-import ItamarLogo from "../assets/logos/ItamarFavicon-2.png";
+import AppLogo from "../assets/logos/app-icon.png";
 import { SaveOptions, SummaryPanelData } from "../Models/types";
 import { convertSecondsToISO, findSpikes, movingAverage } from "../utils/utils";
 import DashboardPanel from "./DashboardPanel";
@@ -276,7 +276,7 @@ const SummaryModal = (props: {
             <FlexboxGrid justify="space-between" align="middle">
               <Stack spacing={10}>
                 <div style={{ width: 20 }}></div>
-                <img src={ItamarLogo} width={30} alt="" />
+                <img src={AppLogo} width={30} alt="" />
                 {`Test Summary
                 ${date.toLocaleDateString("en-GB")}
                 ${date.toLocaleTimeString("en-GB").slice(0, -3)}`}

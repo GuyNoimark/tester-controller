@@ -20,14 +20,14 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
     },
     width: 800,
-    icon: "./assets/logos/ItamarFavicon-2.png",
+    icon: "./assets/logos/app-icon.png",
   });
   mainWindow.loadURL(
     isDev
       ? "http://127.0.0.1:3000"
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
-  mainWindow.setIcon(path.join(__dirname, "/assets/logos/ItamarFavicon-2.png"));
+  mainWindow.setIcon(path.join(__dirname, "/assets/logos/app-icon.png"));
   mainWindow.setFullScreen(true);
   mainWindow.setMenuBarVisibility(false);
   if (isDev) {

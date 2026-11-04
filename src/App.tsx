@@ -16,7 +16,7 @@ import {
   Timeline,
 } from "rsuite";
 
-import ItamarLogo from ".//assets/logos/ItamarFavicon-2.png";
+import AppLogo from "./assets/logos/app-icon.png";
 import ChartPanel from "./Components/ChartPanel";
 import DashboardPanel from "./Components/DashboardPanel";
 import SessionInput from "./Components/SessionSettingsPanel";
@@ -127,7 +127,7 @@ function App() {
               <DashboardPanel>
                 {/* <button> */}{" "}
                 <img
-                  src={ItamarLogo}
+                  src={AppLogo}
                   width={50}
                   alt={""}
                   onClick={switchTheme}

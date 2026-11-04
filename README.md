@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src/assets/logos/ItamarFavicon-2.png" alt="drawing" width="100"/>
+<img src="src/assets/logos/app-icon.png" alt="drawing" width="100"/>
 
 # QA Force Tester User Interface
 
@@ -34,7 +34,7 @@
 
 ## :scroll: Overview
 
-This project was created for a QA operation testing at "Itamar Medical".
+This project was created for the QA team of a medical device company.
 
 The project enables communication and visualization with 2 serial devices (Arduino, and a digital force gauge). The end goal is to produce a friendly user interface which every one can operate
 
